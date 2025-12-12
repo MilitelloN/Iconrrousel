@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:carrouselProject"
         mc:Ignorable="d"
-        Title="Desktop Icon Carousel" Height="130" Width="600"
+        Title="Desktop Iconrousel" Height="90" Width="600"
         Background="#00000000" ResizeMode="NoResize" WindowStyle="None"
         AllowsTransparency="True"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
@@ -81,12 +81,12 @@
                                     Canvas.Left="0"
                                     Canvas.Top="0"
                                     VerticalAlignment="Center"
-                                    Height="110"/>
+                                    Height="90"/>
                     </Canvas>
                     
                     <!-- Placeholder Text -->
                     <TextBlock x:Name="PlaceholderText"
-                               Text="Drag icons here" 
+                               Text="No application found" 
                                HorizontalAlignment="Center" 
                                VerticalAlignment="Center" 
                                FontSize="16"

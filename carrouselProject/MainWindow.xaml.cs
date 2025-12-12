@@ -131,6 +131,7 @@ namespace carrouselProject
                     using (FileStream fs = new FileStream(settingsPath, FileMode.Open))
                     {
                         iconFiles = (List<string>)serializer.Deserialize(fs);
+                        iconFiles.Sort();
                     }
                     RebuildCarousel();
                     UpdateArrowVisibility();
@@ -152,6 +153,7 @@ namespace carrouselProject
                 using (FileStream fs = new FileStream(settingsPath, FileMode.Create))
                 {
                     serializer.Serialize(fs, iconFiles);
+
                 }
             }
             catch (Exception ex)
@@ -327,8 +329,8 @@ namespace carrouselProject
             var iconContainer = new Border
             {
                 Width = ICON_SPACING,
-                Height = 110,
-                Margin = new Thickness(5, 5, 5, 5),
+                Height = 85,
+                Margin = new Thickness(5, 2.5, 5, 2.5),
                 Background = Brushes.Transparent,
                 CornerRadius = new CornerRadius(8),
                 Cursor = Cursors.Hand,
@@ -339,7 +341,7 @@ namespace carrouselProject
             var grid = new Grid
             {
                 Width = ICON_SPACING,
-                Height = 110
+                Height = 85
             };
             
             // Extract and display icon
