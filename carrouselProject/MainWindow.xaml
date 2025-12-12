@@ -1,0 +1,110 @@
+﻿<Window x:Class="carrouselProject.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:carrouselProject"
+        mc:Ignorable="d"
+        Title="Desktop Icon Carousel" Height="130" Width="600"
+        Background="#00000000" ResizeMode="NoResize" WindowStyle="None"
+        AllowsTransparency="True"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    
+    <Window.Resources>
+        <!-- Modern Button Style for Navigation Arrows -->
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#CC2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="50"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="5"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#DD007ACC"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#DD005A9E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Border Background="#CC2D2D30" CornerRadius="10" BorderBrush="#99007ACC" BorderThickness="1">
+        <Grid>
+            <!-- Main Carousel Area -->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="60"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left Arrow Button -->
+            <Button x:Name="LeftArrowButton" 
+                    Grid.Column="0"
+                    Style="{StaticResource NavButtonStyle}"
+                    Click="LeftArrow_Click"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Visibility="Collapsed">
+                <TextBlock Text="◀" FontSize="20" FontWeight="Bold"/>
+            </Button>
+            
+            <!-- Carousel Container -->
+            <Border Grid.Column="1" 
+                    Background="Transparent"
+                    CornerRadius="5"
+                    Margin="5"
+                    AllowDrop="True"
+                    Drop="CarouselScrollViewer_Drop"
+                    DragEnter="CarouselScrollViewer_DragEnter"
+                    DragOver="CarouselScrollViewer_DragOver">
+                
+                <Grid>
+                    <!-- Carousel Viewport -->
+                    <Canvas x:Name="CarouselViewport" 
+                            ClipToBounds="True"
+                            Background="Transparent">
+                        <StackPanel x:Name="CarouselPanel" 
+                                    Orientation="Horizontal" 
+                                    Background="Transparent"
+                                    Canvas.Left="0"
+                                    Canvas.Top="0"
+                                    VerticalAlignment="Center"
+                                    Height="110"/>
+                    </Canvas>
+                    
+                    <!-- Placeholder Text -->
+                    <TextBlock x:Name="PlaceholderText"
+                               Text="Drag icons here" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" 
+                               FontSize="16"
+                               Foreground="#AAAAAA"
+                               IsHitTestVisible="False"/>
+                </Grid>
+            </Border>
+            
+            <!-- Right Arrow Button -->
+            <Button x:Name="RightArrowButton" 
+                    Grid.Column="2"
+                    Style="{StaticResource NavButtonStyle}"
+                    Click="RightArrow_Click"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Visibility="Collapsed">
+                <TextBlock Text="▶" FontSize="20" FontWeight="Bold"/>
+            </Button>
+        </Grid>
+    </Border>
+</Window>
