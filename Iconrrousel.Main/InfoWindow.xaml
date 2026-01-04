@@ -1,0 +1,17 @@
+﻿<Window x:Class="Iconrrousel.Main.InfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Iconrrousel.Main"
+        mc:Ignorable="d"
+        Title="InfoWindow" Height="450" Width="800">
+    <Grid>
+        <Label x:Name="winWidth" Content="{Binding WinWidth, StringFormat=Ancho: {0:F0}}" HorizontalAlignment="Left" Margin="114,83,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="winHeight" Content="{Binding WinHeight, StringFormat=Alto: {0:F0}}" HorizontalAlignment="Left" Margin="114,124,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="iconHeight" Content="{Binding IconHeight, StringFormat=Alto: {0:F0}}" HorizontalAlignment="Left" Margin="109,246,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="iconWidth" Content="{Binding IconWidth, StringFormat=Alto: {0:F0}}" HorizontalAlignment="Left" Margin="114,291,0,0" VerticalAlignment="Top"/>
+
+
+    </Grid>
+</Window>
