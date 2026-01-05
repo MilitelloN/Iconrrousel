@@ -25,7 +25,7 @@ namespace Iconrrousel.Main
 
             
             main.Show();
-            info.Show();
+            //info.Show();
         }
 
         public static SharedData Data { get; } = new SharedData();

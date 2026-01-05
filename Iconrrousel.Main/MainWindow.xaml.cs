@@ -34,6 +34,8 @@ namespace Iconrrousel.Main
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        #region DragMoveWindow
         [DllImport("user32.dll")]
         static extern bool ReleaseCapture();
 
@@ -47,61 +49,6 @@ namespace Iconrrousel.Main
 
         const int WM_NCLBUTTONDOWN = 0xA1;
         const int HTCAPTION = 0x2;
-
-
-        string[] _filesDropped = new string[] { };
-        List<string> _paths = new List<string>();
-
-        public MainWindow()
-        {
-            DataContext = App.Data;
-            InitializeComponent();
-
-            //MouseDown += (s, e) =>
-            //{
-            //    if (e.LeftButton == MouseButtonState.Pressed)
-            //        DragMove();
-            //};
-
-            PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
-
-
-            // TO BE REMOVED -- START
-            SizeChanged += (s, e) =>
-            {
-                App.Data.WinWidth = ActualWidth;
-                App.Data.WinHeight = ActualHeight;
-            };
-            // TO BE REMOVED -- END
-            this.AllowDrop = true;
-
-
-            if (File.Exists("data.json"))
-            {
-                var json = File.ReadAllText("data.json");
-                var items = JsonConvert.DeserializeObject<List<string>>(json);
-
-                foreach (var item in items)
-                {
-                    _paths.Add(item);
-                    IconsPanel.Children.Add(getButton(item));
-
-                }
-            }
-
-   
-
-            /// TO-DO:
-            /// UN SCROLL MAS SUAVE
-            /// MAS ESTETICA LA VENTANA
-            /// UNA PANTALLA DE CONFIGURACION: autostart, paleta de colores, resize de la ventana (+iconos), siempre arriba, mostrar nombres
-            /// ELIMINAR ICONOS DE LA LISTA
-            /// CUSTOM 'RIGHT CLICK' MENU: abrir, eliminar
-            
-            
-            /// Abrir los iconos
-            /// DESAPARECER LA VENTANA
-        }
 
         private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -119,6 +66,52 @@ namespace Iconrrousel.Main
                 0
             );
         }
+        #endregion
+
+
+        string[] _filesDropped = new string[] { };
+        List<string> _paths = new List<string>();
+
+        public MainWindow()
+        {
+            DataContext = App.Data;
+            InitializeComponent();
+
+            PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
+
+            this.AllowDrop = true;
+
+
+            if (File.Exists("data.json"))
+            {
+                var json = File.ReadAllText("data.json");
+                var items = JsonConvert.DeserializeObject<List<string>>(json);
+
+                foreach (var item in items)
+                {
+                    _paths.Add(item);
+                    IconsPanel.Children.Add(getButton(item));
+
+                }
+            }
+
+
+
+            /// TO-DO:
+            /// UN SCROLL MAS SUAVE
+
+            /// UNA PANTALLA DE CONFIGURACION: autostart, paleta de colores, resize de la ventana (+iconos), siempre arriba, mostrar nombres
+
+
+
+
+            /// Abrir los iconos
+            /// DESAPARECER LA VENTANA
+            /// /// MAS ESTETICA LA VENTANA
+            /// /// CUSTOM 'RIGHT CLICK' MENU: abrir, eliminar  /// ELIMINAR ICONOS DE LA LISTA
+        }
+
+
 
         private UIElement getButton(string item)
         {
@@ -148,6 +141,21 @@ namespace Iconrrousel.Main
             {
                 MessageBox.Show("Icon clicked!");
             };
+
+            var menu = new ContextMenu();
+            var deleteItem = new MenuItem { Header = "Delete Icon" };
+            
+            deleteItem.Click += (s, e) =>
+            {
+                _paths.Remove(item);
+                IconsPanel.Children.Remove(bttn);
+                string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText("data.json", json);
+            };
+
+            menu.Items.Add(deleteItem);
+
+            bttn.ContextMenu = menu;
 
             return bttn;
         }
@@ -185,9 +193,6 @@ namespace Iconrrousel.Main
             // Suelto un archivo: Lo agrego a una lista, reordeno, guardo en JSON, mientras reescribo el json puedo hacer un hilo para mostrar los nuevos.
 
             _filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-
-            var items = new List<StoredItem>();
 
             foreach (var path in _filesDropped)
             {
@@ -238,10 +243,6 @@ namespace Iconrrousel.Main
         {
             MessageBox.Show("New window!");
         }
-    }
-    class StoredItem
-    {
-        public string Path { get; set; }
     }
 
     
