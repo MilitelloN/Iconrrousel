@@ -22,7 +22,7 @@
     
     <Window.Resources>
         <Style x:Key="ModernScrollButton" TargetType="Button">
-            <Setter Property="Background" Value="#20FFFFFF"/>
+            <Setter Property="Background" Value="#1AFFFFFF"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="16"/>
@@ -33,16 +33,16 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border" 
                                 Background="{TemplateBinding Background}" 
-                                CornerRadius="10"
+                                CornerRadius="12"
                                 Padding="5">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#40FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="#38FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#60FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="#52FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -109,51 +109,49 @@
                 VerticalAlignment="Top"/>
 
             <Grid Grid.Row="1" Margin="5,0,5,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Button
-                    x:Name="ScrollLeft"
-                    Grid.Column="0"
-                    Content="◀" 
-                    Style="{StaticResource ModernScrollButton}"
-                    ClickMode="Press" 
-                    Click="ScrollLeft_Click"
-                    Width="40" 
-                    Height="80"
-                    Margin="0,0,6,0"
-                    VerticalAlignment="Center"/>
-
+                <!-- Scroll content -->
                 <ScrollViewer x:Name="IconViewer" 
-                            Grid.Column="1" 
-                            MinWidth="50"
-                            MaxWidth="600"
-                            Margin="4,0,4,0" 
-                            HorizontalScrollBarVisibility="Hidden" 
-                            VerticalScrollBarVisibility="Disabled"
-                            Background="Transparent"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center">
+                              MinWidth="50"
+                              MaxWidth="600"
+                              Margin="0"
+                              Padding="46,0,46,0"
+                              HorizontalScrollBarVisibility="Hidden" 
+                              VerticalScrollBarVisibility="Disabled"
+                              Background="Transparent"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Center">
                     <WrapPanel x:Name="IconsPanel" 
                                Orientation="Horizontal" 
                                VerticalAlignment="Center"
                                HorizontalAlignment="Center" />
                 </ScrollViewer>
 
+                <!-- Overlayed buttons -->
+                <Button
+                    x:Name="ScrollLeft"
+                    Content="◀" 
+                    Style="{StaticResource ModernScrollButton}"
+                    ClickMode="Press" 
+                    Click="ScrollLeft_Click"
+                    Width="38" 
+                    Height="72"
+                    Margin="4,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Panel.ZIndex="1"/>
+
                 <Button
                     x:Name="ScrollRight" 
-                    Grid.Column="2"
                     Content="▶"
                     Style="{StaticResource ModernScrollButton}"
                     ClickMode="Press"
                     Click="ScrollRight_Click"
-                    Width="40"
-                    Height="80"
-                    Margin="6,0,0,0"
-                    VerticalAlignment="Center"/>
+                    Width="38"
+                    Height="72"
+                    Margin="0,0,4,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Panel.ZIndex="1"/>
             </Grid>
         </Grid>
     </Border>
