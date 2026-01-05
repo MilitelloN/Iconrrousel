@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using static Iconrrousel.Main.UIConfiguration;
 
 namespace Iconrrousel.Main
 {
@@ -21,11 +24,9 @@ namespace Iconrrousel.Main
             base.OnStartup(e);
 
             var main = new MainWindow();
-            var info = new InfoWindow();
-
             
             main.Show();
-            //info.Show();
+
         }
 
         public static SharedData Data { get; } = new SharedData();
@@ -33,30 +34,24 @@ namespace Iconrrousel.Main
 
     public class SharedData : INotifyPropertyChanged
     {
-        private string _selectedPath;
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private double _winHeight = UIConfiguration.Window.DefaultHeight;
         private double _winWidth = UIConfiguration.Window.DefaultWidth;
-        private double _iconHeight;
-        private double _iconWidth;
-        private string _path;
-        private ImageSource _pathImg;
 
-        public string SelectedPath
+
+        List<string> _paths = new List<string>();
+        string _FILENAME = "PATHS.json";
+
+        public List<string> Paths
         {
-            get => _selectedPath;
-            set => Set(ref _selectedPath, value);
+            get => _paths;
+            set => Set(ref _paths, value);
         }
 
-        public string Path
+        public string FILENAME
         {
-            get => _path;
-            set => Set(ref _path, value);
-        }
-
-        public ImageSource PathImg
-        {
-            get => _pathImg;
-            set => Set(ref _pathImg, value);
+            get => _FILENAME;
         }
 
 
@@ -72,39 +67,19 @@ namespace Iconrrousel.Main
             set => Set(ref _winWidth, value);
         }
 
-        public double IconHeight
-        {
-            get => _iconHeight;
-            set => Set(ref _iconHeight, value);
-        }
-
-        public double IconWidth
-        {
-            get => _iconWidth;
-            set => Set(ref _iconWidth, value);
-        }
-
 
 
 
         protected void Set<T>(ref T field, T value,
         [System.Runtime.CompilerServices.CallerMemberName] string name = null)
-    {
-        if (!Equals(field, value))
         {
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (!Equals(field, value))
+            {
+                field = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            }
         }
-    }
+        
 
-
-
-
-
-
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

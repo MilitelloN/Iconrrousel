@@ -70,8 +70,6 @@ namespace Iconrrousel.Main
 
 
         string[] _filesDropped = new string[] { };
-        List<string> _paths = new List<string>();
-        readonly string _JSONFILE = "PATHS.json";
 
         public MainWindow()
         {
@@ -83,14 +81,14 @@ namespace Iconrrousel.Main
             this.AllowDrop = true;
 
 
-            if (File.Exists(_JSONFILE))
+            if (File.Exists(App.Data.FILENAME))
             {
-                var json = File.ReadAllText(_JSONFILE);
+                var json = File.ReadAllText(App.Data.FILENAME);
                 var items = JsonConvert.DeserializeObject<List<string>>(json);
 
                 foreach (var item in items)
                 {
-                    _paths.Add(item);
+                    App.Data.Paths.Add(item);
                     IconsPanel.Children.Add(getButton(item));
 
                 }
@@ -138,7 +136,7 @@ namespace Iconrrousel.Main
 
             deleteItem.Click += (s, e) =>
             {
-                _paths.Remove(item);
+                App.Data.Paths.Remove(item);
                 IconsPanel.Children.Remove(bttn);
                 updateJson();
             };
@@ -171,27 +169,27 @@ namespace Iconrrousel.Main
         private void updatePanel()
         {
             IconsPanel.Children.Clear();
-            foreach (var path in _paths)
+            foreach (var path in App.Data.Paths)
             {
                 IconsPanel.Children.Add(getButton(path));
             }
         }
 
-        private void updateJson()
+        public void updateJson()
         {
-            string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(_JSONFILE, json);
+            string json = JsonConvert.SerializeObject(App.Data.Paths, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(App.Data.FILENAME, json);
         }
 
         private void updatePaths(string[] filesDropped)
         {
             foreach (var path in _filesDropped)
             {
-                if (!_paths.Contains(path))
-                    _paths.Add(path);
+                if (!App.Data.Paths.Contains(path))
+                    App.Data.Paths.Add(path);
             }
 
-            _paths.Sort();
+            App.Data.Paths.Sort();
         }
 
         public static ImageSource GetHighQualityIcon(string path)
@@ -220,7 +218,17 @@ namespace Iconrrousel.Main
 
         private void OpenWindow_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("New window!");
+            var settWin = new SettingsWindow(this);
+            settWin.Owner = this;
+            settWin.Show();
+        }
+
+        internal void ClearAllIcons()
+        {
+            App.Data.Paths.Clear();
+            updateJson();
+            updatePanel();
+
         }
     }
 
