@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace Iconrrousel.Main
 {
@@ -36,12 +38,27 @@ namespace Iconrrousel.Main
         private double _winWidth = 800;
         private double _iconHeight;
         private double _iconWidth;
+        private string _path;
+        private ImageSource _pathImg;
 
         public string SelectedPath
         {
             get => _selectedPath;
             set => Set(ref _selectedPath, value);
         }
+
+        public string Path
+        {
+            get => _path;
+            set => Set(ref _path, value);
+        }
+
+        public ImageSource PathImg
+        {
+            get => _pathImg;
+            set => Set(ref _pathImg, value);
+        }
+
 
         public double WinHeight
         {

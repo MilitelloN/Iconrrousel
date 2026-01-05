@@ -23,6 +23,23 @@ namespace Iconrrousel.Main
         {
             DataContext = App.Data;
             InitializeComponent();
+
+            //    imgbttn.Content = new Image
+            //    {
+            //        Source = App.Data.PathImg,
+            //        Width = 64,
+            //        Height = 64,
+            //        VerticalAlignment = VerticalAlignment.Center,
+            //        HorizontalAlignment = HorizontalAlignment.Center
+            //    };
+            //    imgbttn.Click += (s, e) =>
+            //    {
+            //        MessageBox.Show("Icon clicked!");
+            //    };
+            //    imgbttn.Width = 70;
+            //    imgbttn.Height = 70;
+            //    imgbttn.Background = Brushes.Transparent;
+            //    imgbttn.BorderBrush = Brushes.Transparent;
         }
     }
 }

@@ -11,6 +11,7 @@
         <Label x:Name="winHeight" Content="{Binding WinHeight, StringFormat=Alto: {0:F0}}" HorizontalAlignment="Left" Margin="114,124,0,0" VerticalAlignment="Top"/>
         <Label x:Name="iconHeight" Content="{Binding IconHeight, StringFormat=Alto: {0:F0}}" HorizontalAlignment="Left" Margin="109,246,0,0" VerticalAlignment="Top"/>
         <Label x:Name="iconWidth" Content="{Binding IconWidth, StringFormat=Alto: {0:F0}}" HorizontalAlignment="Left" Margin="114,291,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="imgbttn" Content="Button" HorizontalAlignment="Left" Margin="434,285,0,0" VerticalAlignment="Top" Height="49" Width="109"/>
 
 
     </Grid>
