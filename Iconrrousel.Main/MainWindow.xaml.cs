@@ -71,6 +71,7 @@ namespace Iconrrousel.Main
 
         string[] _filesDropped = new string[] { };
         List<string> _paths = new List<string>();
+        readonly string _JSONFILE = "PATHS.json";
 
         public MainWindow()
         {
@@ -82,9 +83,9 @@ namespace Iconrrousel.Main
             this.AllowDrop = true;
 
 
-            if (File.Exists("data.json"))
+            if (File.Exists(_JSONFILE))
             {
-                var json = File.ReadAllText("data.json");
+                var json = File.ReadAllText(_JSONFILE);
                 var items = JsonConvert.DeserializeObject<List<string>>(json);
 
                 foreach (var item in items)
@@ -95,22 +96,12 @@ namespace Iconrrousel.Main
                 }
             }
 
-
-
             /// TO-DO:
             /// UN SCROLL MAS SUAVE
 
             /// UNA PANTALLA DE CONFIGURACION: autostart, paleta de colores, resize de la ventana (+iconos), siempre arriba, mostrar nombres
 
-
-
-
-            /// Abrir los iconos
-            /// DESAPARECER LA VENTANA
-            /// /// MAS ESTETICA LA VENTANA
-            /// /// CUSTOM 'RIGHT CLICK' MENU: abrir, eliminar  /// ELIMINAR ICONOS DE LA LISTA
         }
-
 
 
         private UIElement getButton(string item)
@@ -133,9 +124,9 @@ namespace Iconrrousel.Main
                     Stretch = System.Windows.Media.Stretch.Uniform,
                     VerticalAlignment = VerticalAlignment.Center,
                     HorizontalAlignment = HorizontalAlignment.Center
-                }  
+                }
             };
-           
+
 
             bttn.Click += (s, e) =>
             {
@@ -144,13 +135,12 @@ namespace Iconrrousel.Main
 
             var menu = new ContextMenu();
             var deleteItem = new MenuItem { Header = "Delete Icon" };
-            
+
             deleteItem.Click += (s, e) =>
             {
                 _paths.Remove(item);
                 IconsPanel.Children.Remove(bttn);
-                string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText("data.json", json);
+                updateJson();
             };
 
             menu.Items.Add(deleteItem);
@@ -159,26 +149,7 @@ namespace Iconrrousel.Main
 
             return bttn;
         }
-       
 
-        private Image getImage(string path)
-        {
-            System.Windows.Controls.Image img = new System.Windows.Controls.Image
-            {
-                Tag = "NewIcon",
-                Width = 64,
-                Height = 64,
-                Margin = new Thickness(10, 10, 10, 0),
-                Source = IconExtractor.GetJumboIcon(path),
-                Stretch = System.Windows.Media.Stretch.Uniform,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
-            return img;
-        }
-
-        
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
         {
@@ -190,10 +161,30 @@ namespace Iconrrousel.Main
 
         private void Grid_Drop(object sender, DragEventArgs e)
         {
-            // Suelto un archivo: Lo agrego a una lista, reordeno, guardo en JSON, mientras reescribo el json puedo hacer un hilo para mostrar los nuevos.
-
             _filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
 
+            updatePaths(_filesDropped);
+            updateJson();
+            updatePanel();
+        }
+
+        private void updatePanel()
+        {
+            IconsPanel.Children.Clear();
+            foreach (var path in _paths)
+            {
+                IconsPanel.Children.Add(getButton(path));
+            }
+        }
+
+        private void updateJson()
+        {
+            string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(_JSONFILE, json);
+        }
+
+        private void updatePaths(string[] filesDropped)
+        {
             foreach (var path in _filesDropped)
             {
                 if (!_paths.Contains(path))
@@ -201,18 +192,6 @@ namespace Iconrrousel.Main
             }
 
             _paths.Sort();
-
-            string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText("data.json", json);
-
-            IconsPanel.Children.Clear();
-            foreach (var path in _paths)
-            {
-                IconsPanel.Children.Add(getButton(path));
-            }
-
-
-
         }
 
         public static ImageSource GetHighQualityIcon(string path)
@@ -245,7 +224,7 @@ namespace Iconrrousel.Main
         }
     }
 
-    
+
 
 
 
