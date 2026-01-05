@@ -8,71 +8,145 @@
     Title="Iconroussel"
     Width="{Binding WinWidth, Mode=TwoWay}"
     Height="{Binding WinHeight, Mode=TwoWay}"
-    AllowDrop="True"
-    Background="#01000000"
-    DragEnter="Grid_DragEnter"
-    Drop="Grid_Drop"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
+    AllowDrop="True"
+    DragEnter="Grid_DragEnter"
+    Drop="Grid_Drop"
+    AllowsTransparency="True"
     WindowStyle="None"
+    Background="Transparent"
     mc:Ignorable="d">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    
+    <Window.Resources>
+        <Style x:Key="ModernScrollButton" TargetType="Button">
+            <Setter Property="Background" Value="#20FFFFFF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="10"
+                                Padding="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#40FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#60FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <Border
-            Grid.ColumnSpan="3"
-            Padding="4"
-            HorizontalAlignment="Center"
-            Background="#01000000"
-            CornerRadius="8">
-            <Grid Grid.Row="0">
+        <Style x:Key="TopButton" TargetType="Button">
+            <Setter Property="Background" Value="#30FFFFFF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="8"
+                                Padding="8,4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#50FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#70FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Border Background="#E0000000" 
+            CornerRadius="15" 
+            Margin="10"
+            Padding="10">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" 
+                            Direction="270" 
+                            ShadowDepth="5" 
+                            BlurRadius="20" 
+                            Opacity="0.7"/>
+        </Border.Effect>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Button
+                x:Name="OpenConfigButton"
+                Grid.Row="0"
+                Content="⚙"
+                Style="{StaticResource TopButton}"
+                Width="35"
+                Height="28"
+                Margin="0,0,0,8"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"/>
+
+            <Grid Grid.Row="1" Margin="10,0,10,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto" />
-
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <Button
                     x:Name="ScrollLeft"
                     Grid.Column="0"
-                    Width="40"
-                    Height="Auto"
-                    HorizontalAlignment="Left"
-                    Background="#CF3F4042"
+                    Content="◀" 
+                    Style="{StaticResource ModernScrollButton}"
+                    ClickMode="Press" 
                     Click="ScrollLeft_Click"
-                    ClickMode="Press"
-                    Content="&lt;&lt;" />
+                    Width="40" 
+                    Height="90"
+                    Margin="0,0,10,0"
+                    VerticalAlignment="Center"/>
 
                 <Button
-                    x:Name="ScrollRight"
+                    x:Name="ScrollRight" 
                     Grid.Column="2"
-                    Width="40"
-                    Height="Auto"
-                    HorizontalAlignment="Right"
-                    Background="#CF3F4042"
-                    Click="ScrollRight_Click"
+                    Content="▶"
+                    Style="{StaticResource ModernScrollButton}"
                     ClickMode="Press"
-                    Content="&gt;&gt;" />
+                    Click="ScrollRight_Click"
+                    Width="40"
+                    Height="90"
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"/>
 
-                <ScrollViewer
-                    x:Name="IconViewer"
-                    Grid.Column="1"
-                    Width="Auto"
-                    HorizontalScrollBarVisibility="Hidden"
-                    VerticalScrollBarVisibility="Disabled">
-                    <WrapPanel
-                        x:Name="IconsPanel"
-                        Width="Auto"
-                        Height="auto"
-                        MinHeight="50"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal" />
+                <ScrollViewer x:Name="IconViewer" 
+                            Grid.Column="1" 
+                            Margin="8,0,8,0" 
+                            HorizontalScrollBarVisibility="Hidden" 
+                            VerticalScrollBarVisibility="Disabled"
+                            Background="Transparent"
+                            VerticalAlignment="Center">
+                    <WrapPanel x:Name="IconsPanel" Orientation="Horizontal" VerticalAlignment="Center" />
                 </ScrollViewer>
             </Grid>
-        </Border>
-    </Grid>
+        </Grid>
+    </Border>
 </Window>
