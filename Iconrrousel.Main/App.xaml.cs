@@ -34,8 +34,8 @@ namespace Iconrrousel.Main
     public class SharedData : INotifyPropertyChanged
     {
         private string _selectedPath;
-        private double _winHeight = 180;
-        private double _winWidth = 800;
+        private double _winHeight = UIConfiguration.Window.DefaultHeight;
+        private double _winWidth = UIConfiguration.Window.DefaultWidth;
         private double _iconHeight;
         private double _iconWidth;
         private string _path;

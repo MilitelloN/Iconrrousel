@@ -6,8 +6,10 @@
     xmlns:local="clr-namespace:Iconrrousel.Main"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Iconroussel"
-    Width="{Binding WinWidth, Mode=TwoWay}"
     Height="{Binding WinHeight, Mode=TwoWay}"
+    MinWidth="170"
+    MaxWidth="720"
+    SizeToContent="Width"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     AllowDrop="True"
@@ -23,7 +25,7 @@
             <Setter Property="Background" Value="#20FFFFFF"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -52,7 +54,7 @@
             <Setter Property="Background" Value="#30FFFFFF"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -60,7 +62,7 @@
                         <Border x:Name="border" 
                                 Background="{TemplateBinding Background}" 
                                 CornerRadius="8"
-                                Padding="8,4">
+                                Padding="8,3">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -80,7 +82,7 @@
     <Border Background="#E0000000" 
             CornerRadius="15" 
             Margin="10"
-            Padding="10">
+            Padding="6">
         <Border.Effect>
             <DropShadowEffect Color="Black" 
                             Direction="270" 
@@ -101,15 +103,15 @@
                 Content="⚙"
                 Style="{StaticResource TopButton}"
                 Width="35"
-                Height="28"
-                Margin="0,0,0,8"
+                Height="26"
+                Margin="0,0,0,6"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"/>
 
-            <Grid Grid.Row="1" Margin="10,0,10,0">
+            <Grid Grid.Row="1" Margin="5,0,5,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -121,9 +123,25 @@
                     ClickMode="Press" 
                     Click="ScrollLeft_Click"
                     Width="40" 
-                    Height="90"
-                    Margin="0,0,10,0"
+                    Height="80"
+                    Margin="0,0,6,0"
                     VerticalAlignment="Center"/>
+
+                <ScrollViewer x:Name="IconViewer" 
+                            Grid.Column="1" 
+                            MinWidth="50"
+                            MaxWidth="600"
+                            Margin="4,0,4,0" 
+                            HorizontalScrollBarVisibility="Hidden" 
+                            VerticalScrollBarVisibility="Disabled"
+                            Background="Transparent"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center">
+                    <WrapPanel x:Name="IconsPanel" 
+                               Orientation="Horizontal" 
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center" />
+                </ScrollViewer>
 
                 <Button
                     x:Name="ScrollRight" 
@@ -133,19 +151,9 @@
                     ClickMode="Press"
                     Click="ScrollRight_Click"
                     Width="40"
-                    Height="90"
-                    Margin="10,0,0,0"
+                    Height="80"
+                    Margin="6,0,0,0"
                     VerticalAlignment="Center"/>
-
-                <ScrollViewer x:Name="IconViewer" 
-                            Grid.Column="1" 
-                            Margin="8,0,8,0" 
-                            HorizontalScrollBarVisibility="Hidden" 
-                            VerticalScrollBarVisibility="Disabled"
-                            Background="Transparent"
-                            VerticalAlignment="Center">
-                    <WrapPanel x:Name="IconsPanel" Orientation="Horizontal" VerticalAlignment="Center" />
-                </ScrollViewer>
             </Grid>
         </Grid>
     </Border>

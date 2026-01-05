@@ -124,19 +124,18 @@ namespace Iconrrousel.Main
         {
             Button bttn = new Button
             {
-                Width = 70,
-                Height = 70,
+                Width = UIConfiguration.Icon.ButtonWidth,
+                Height = UIConfiguration.Icon.ButtonHeight,
                 Background = Brushes.Transparent,
                 BorderBrush = Brushes.Transparent,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(10, 10, 10, 0),
+                Margin = UIConfiguration.Icon.ButtonMargin,
                 Content = new System.Windows.Controls.Image
                 {
                     Tag = "NewIcon",
-                    Width = 64,
-                    Height = 64,
-                    //Margin = new Thickness(10, 10, 10, 0),
+                    Width = UIConfiguration.Icon.ImageWidth,
+                    Height = UIConfiguration.Icon.ImageHeight,
                     Source = IconExtractor.GetJumboIcon(item),
                     Stretch = System.Windows.Media.Stretch.Uniform,
                     VerticalAlignment = VerticalAlignment.Center,
@@ -227,12 +226,12 @@ namespace Iconrrousel.Main
 
         private void ScrollLeft_Click(object sender, RoutedEventArgs e)
         {
-            IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset - 200);
+            IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset - UIConfiguration.ScrollButtons.ScrollOffset);
         }
 
         private void ScrollRight_Click(object sender, RoutedEventArgs e)
         {
-            IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset + 200);
+            IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset + UIConfiguration.ScrollButtons.ScrollOffset);
         }
 
         private void OpenWindow_Click(object sender, RoutedEventArgs e)
