@@ -38,6 +38,8 @@ namespace Iconrrousel.Main
 
         private double _winHeight = UIConfiguration.Window.DefaultHeight;
         private double _winWidth = UIConfiguration.Window.DefaultWidth;
+        public readonly string _CONFIG_FILE = "Settings.json";
+        private bool _showIconNames;
 
 
 
@@ -51,6 +53,12 @@ namespace Iconrrousel.Main
         {
             get => _winWidth;
             set => Set(ref _winWidth, value);
+        }
+
+        public bool ShowIconNames
+        {
+            get => _showIconNames;
+            set => Set(ref _showIconNames, value);
         }
 
 

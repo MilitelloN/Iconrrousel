@@ -9,7 +9,7 @@ namespace Iconrrousel.Main
         public static class Window
         {
             public const double DefaultWidth = 320;
-            public const double DefaultHeight = 150;
+            public const double DefaultHeight = 190;
             public const double MinWidth = 320;
         }
 
@@ -72,12 +72,14 @@ namespace Iconrrousel.Main
         public static class Icon
         {
             public const double ButtonWidth = 70;
-            public const double ButtonHeight = 70;
+            public const double ButtonHeight = 90;
             public const double ImageWidth = 64;
             public const double ImageHeight = 64;
+            public const double ImageWidthWithLabel = 54;
+            public const double ImageHeightWithLabel = 54;
             
             // Margins
-            public static readonly Thickness ButtonMargin = new Thickness(10, 10, 10, 0);
+            public static readonly Thickness ButtonMargin = new Thickness(10, 6, 10, 6);
         }
     }
 }

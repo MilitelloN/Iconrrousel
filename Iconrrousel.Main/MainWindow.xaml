@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Iconrrousel.Main"
+    xmlns:conv="clr-namespace:Iconrrousel.Main.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Iconroussel"
     Height="{Binding WinHeight, Mode=TwoWay}"
@@ -21,6 +22,8 @@
     mc:Ignorable="d">
     
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:ShowNamesToSizeConverter x:Key="ShowNamesToSize" />
         <Style x:Key="ModernScrollButton" TargetType="Button">
             <Setter Property="Background" Value="#1AFFFFFF"/>
             <Setter Property="Foreground" Value="White"/>
@@ -94,7 +97,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="*" MinHeight="120" />
             </Grid.RowDefinitions>
 
             <Button
@@ -115,7 +118,7 @@
                               MinWidth="50"
                               MaxWidth="600"
                               Margin="0"
-                              Padding="46,0,46,0"
+                              Padding="46,6,46,10"
                               HorizontalScrollBarVisibility="Hidden" 
                               VerticalScrollBarVisibility="Disabled"
                               Background="Transparent"

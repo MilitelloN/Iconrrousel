@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Iconrrousel.Main.Properties;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Shell;
 using Newtonsoft.Json;
 using System;
@@ -78,6 +79,7 @@ namespace Iconrrousel.Main
         public MainWindow()
         {
             DataContext = App.Data;
+            ApplySettings();
             InitializeComponent();
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
@@ -105,30 +107,77 @@ namespace Iconrrousel.Main
 
         }
 
+        private void ApplySettings()
+        {
+            if (File.Exists(App.Data._CONFIG_FILE))
+            {
+                var json = File.ReadAllText(App.Data._CONFIG_FILE);
+                Dictionary<string, object> settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                App.Data.ShowIconNames = settings.ContainsKey("DisplayNames") ? (bool)settings["DisplayNames"] : false;
+            }
+        }
 
         private UIElement getButton(string item)
         {
-            Button bttn = new Button
+            var panel = new StackPanel
             {
-                Width = UIConfiguration.Icon.ButtonWidth,
-                Height = UIConfiguration.Icon.ButtonHeight,
+                Orientation = Orientation.Vertical,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var sizeBinding = new Binding("ShowIconNames")
+            {
+                Source = App.Data,
+                Converter = (IValueConverter)FindResource("ShowNamesToSize")
+            };
+
+            var img = new System.Windows.Controls.Image
+            {
+                Tag = "NewIcon",
+                Stretch = System.Windows.Media.Stretch.Uniform,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            img.SetBinding(FrameworkElement.WidthProperty, sizeBinding);
+            img.SetBinding(FrameworkElement.HeightProperty, sizeBinding);
+            img.Source = IconExtractor.GetJumboIcon(item);
+            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+
+            var nameBlock = new TextBlock
+            {
+                Text = System.IO.Path.GetFileNameWithoutExtension(item),
+                Foreground = Brushes.White,
+                FontSize = 11,
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                MaxWidth = UIConfiguration.Icon.ButtonWidth + 10,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0, 4, 0, 0)
+            };
+            var visibilityBinding = new Binding("ShowIconNames")
+            {
+                Source = App.Data,
+                Converter = new BooleanToVisibilityConverter()
+            };
+            nameBlock.SetBinding(TextBlock.VisibilityProperty, visibilityBinding);
+
+            panel.Children.Add(img);
+            panel.Children.Add(nameBlock);
+
+            var bttn = new Button
+            {
                 Background = Brushes.Transparent,
                 BorderBrush = Brushes.Transparent,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(4, 4, 4, 6),
                 Margin = UIConfiguration.Icon.ButtonMargin,
-                Content = new System.Windows.Controls.Image
-                {
-                    Tag = "NewIcon",
-                    Width = UIConfiguration.Icon.ImageWidth,
-                    Height = UIConfiguration.Icon.ImageHeight,
-                    Source = IconExtractor.GetJumboIcon(item),
-                    Stretch = System.Windows.Media.Stretch.Uniform,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                }
+                MinWidth = UIConfiguration.Icon.ButtonWidth,
+                MinHeight = UIConfiguration.Icon.ButtonHeight,
+                Content = panel
             };
-
 
             bttn.Click += (s, e) =>
             {
@@ -146,7 +195,6 @@ namespace Iconrrousel.Main
             };
 
             menu.Items.Add(deleteItem);
-
             bttn.ContextMenu = menu;
 
             return bttn;
