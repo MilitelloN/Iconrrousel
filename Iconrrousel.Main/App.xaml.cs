@@ -36,26 +36,10 @@ namespace Iconrrousel.Main
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private double _winHeight = UIConfiguration.Window.DefaultHeight;
-        private double _winWidth = UIConfiguration.Window.DefaultWidth;
         public readonly string _CONFIG_FILE = "Settings.json";
         
         private bool _showIconNames;
         private bool _darkTheme;
-
-
-
-        public double WinHeight
-        {
-            get => _winHeight;
-            set => Set(ref _winHeight, value);
-        }
-
-        public double WinWidth
-        {
-            get => _winWidth;
-            set => Set(ref _winWidth, value);
-        }
 
         public bool ShowIconNames
         {
@@ -69,9 +53,6 @@ namespace Iconrrousel.Main
             set => Set(ref _darkTheme, value);
         }
 
-
-
-
         protected void Set<T>(ref T field, T value,
         [System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
@@ -81,7 +62,5 @@ namespace Iconrrousel.Main
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
         }
-        
-
     }
 }
