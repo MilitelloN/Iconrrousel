@@ -114,6 +114,7 @@ namespace Iconrrousel.Main
                 var json = File.ReadAllText(App.Data._CONFIG_FILE);
                 Dictionary<string, object> settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
                 App.Data.ShowIconNames = settings.ContainsKey("DisplayNames") ? (bool)settings["DisplayNames"] : false;
+                App.Data.DarkTheme = settings.ContainsKey("DarkTheme") ? (bool)settings["DarkTheme"] : false;
             }
         }
 

@@ -34,7 +34,6 @@ namespace Iconrrousel.Main
             {
                 var json = File.ReadAllText(App.Data._CONFIG_FILE);
                 settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-
             }
             LoadSettings();
         }
@@ -43,7 +42,9 @@ namespace Iconrrousel.Main
         {
             StartUpCbox.IsChecked = settings.ContainsKey("Startup") ? (bool)settings["Startup"] : false;
             NamesCbox.IsChecked = settings.ContainsKey("DisplayNames") ? (bool)settings["DisplayNames"] : false;
+            ThemeCbox.IsChecked = settings.ContainsKey("DarkTheme") ? (bool)settings["DarkTheme"] : false;
             App.Data.ShowIconNames = NamesCbox.IsChecked ?? false;
+            App.Data.DarkTheme = ThemeCbox.IsChecked ?? false;
         }
 
         private void DeleteAllIcons_Click(object sender, RoutedEventArgs e)
@@ -57,8 +58,9 @@ namespace Iconrrousel.Main
 
             _main.SetStartup((bool)StartUpCbox.IsChecked);
             App.Data.ShowIconNames = NamesCbox.IsChecked ?? false;
+            App.Data.DarkTheme = ThemeCbox.IsChecked ?? false;
 
-            if(settings.ContainsKey("Startup"))
+            if (settings.ContainsKey("Startup"))
                 settings["Startup"] = (bool)StartUpCbox.IsChecked;
             else
                 settings.Add("Startup", (bool)StartUpCbox.IsChecked);
@@ -67,6 +69,11 @@ namespace Iconrrousel.Main
                 settings["DisplayNames"] = App.Data.ShowIconNames;
             else
                 settings.Add("DisplayNames", App.Data.ShowIconNames);
+
+            if (settings.ContainsKey("DarkTheme"))
+                settings["DarkTheme"] = App.Data.DarkTheme;
+            else
+                settings.Add("DarkTheme", App.Data.DarkTheme);
 
             string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
             File.WriteAllText(App.Data._CONFIG_FILE, json);

@@ -39,7 +39,9 @@ namespace Iconrrousel.Main
         private double _winHeight = UIConfiguration.Window.DefaultHeight;
         private double _winWidth = UIConfiguration.Window.DefaultWidth;
         public readonly string _CONFIG_FILE = "Settings.json";
+        
         private bool _showIconNames;
+        private bool _darkTheme;
 
 
 
@@ -59,6 +61,12 @@ namespace Iconrrousel.Main
         {
             get => _showIconNames;
             set => Set(ref _showIconNames, value);
+        }
+
+        public bool DarkTheme
+        {
+            get => _darkTheme;
+            set => Set(ref _darkTheme, value);
         }
 
 

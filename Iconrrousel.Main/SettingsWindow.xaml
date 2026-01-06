@@ -9,13 +9,15 @@
     <Grid>
         <Button Content="Delete all icons" HorizontalAlignment="Left" Margin="291,69,0,0" VerticalAlignment="Top" Width="169" Click="DeleteAllIcons_Click"/>
         <CheckBox Content="Start with windows" x:Name="StartUpCbox" HorizontalAlignment="Left" Margin="296,131,0,0" VerticalAlignment="Top"/>
+        <CheckBox Content="Dark theme" x:Name="ThemeCbox" HorizontalAlignment="Left" Margin="296,111,0,0" VerticalAlignment="Top"/>
         <CheckBox Content="Display names" x:Name="NamesCbox" HorizontalAlignment="Left" Margin="296,151,0,0" VerticalAlignment="Top"/>
         <Button Content="Save" HorizontalAlignment="Left" Margin="296,338,0,0" VerticalAlignment="Top" Width="169" Click="SaveChanges_Click"/>
         <Button Content="Close without saving" HorizontalAlignment="Left" Margin="296,370,0,0" VerticalAlignment="Top" Width="168" Click="CloseWin_Click"/>
         <Button Content="Close application" HorizontalAlignment="Left" Margin="296,404,0,0" VerticalAlignment="Top" Width="168" Click="CloseApp_Click"/>
-        <RadioButton Content="Small" GroupName="IconSizeGrp" HorizontalAlignment="Left" Margin="245,228,0,0" VerticalAlignment="Top"/>
-        <RadioButton Content="Medium" GroupName="IconSizeGrp" HorizontalAlignment="Left" Margin="329,228,0,0" VerticalAlignment="Top"/>
-        <RadioButton Content="Large" GroupName="IconSizeGrp" HorizontalAlignment="Left" Margin="438,228,0,0" VerticalAlignment="Top"/>
+        <RadioButton Content="Small" GroupName="IconSizeGrp" HorizontalAlignment="Left" Margin="245,202,0,0" VerticalAlignment="Top"/>
+        <RadioButton Content="Medium" GroupName="IconSizeGrp" HorizontalAlignment="Left" Margin="329,202,0,0" VerticalAlignment="Top"/>
+        <RadioButton Content="Large" GroupName="IconSizeGrp" HorizontalAlignment="Left" Margin="438,202,0,0" VerticalAlignment="Top"/>
+        <Label Content="Choose the size of the program" HorizontalAlignment="Left" Margin="267,171,0,0" VerticalAlignment="Top"/>
 
 
     </Grid>
