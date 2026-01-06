@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,11 +22,26 @@ namespace Iconrrousel.Main
     public partial class SettingsWindow : Window
     {
         private readonly MainWindow _main;
+        private readonly string _CONFIG_FILE = "Settings.json";
+        Dictionary<string, object> settings = new Dictionary<string, object>();
         public SettingsWindow(MainWindow main)
         {
             DataContext = App.Data;
             InitializeComponent();
             _main = main;
+
+            if (File.Exists(_CONFIG_FILE))
+            {
+                var json = File.ReadAllText(_CONFIG_FILE);
+                settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            }
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
+            StartUpCbox.IsChecked = settings.ContainsKey("Startup") ? (bool)settings["Startup"] : false;
         }
 
         private void DeleteAllIcons_Click(object sender, RoutedEventArgs e)
@@ -32,5 +49,31 @@ namespace Iconrrousel.Main
             _main.ClearAllIcons();
             this.Close();
         }
+
+        private void SaveChanges_Click(object sender, RoutedEventArgs e)
+        {
+
+            _main.SetStartup((bool)StartUpCbox.IsChecked);
+
+            if(settings.ContainsKey("Startup"))
+                settings["Startup"] = (bool)StartUpCbox.IsChecked;
+            else
+                settings.Add("Startup", (bool)StartUpCbox.IsChecked);
+
+            string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(_CONFIG_FILE, json);
+            this.Close();
+        }
+
+        private void CloseWin_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void CloseApp_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
     }
 }

@@ -40,20 +40,6 @@ namespace Iconrrousel.Main
         private double _winWidth = UIConfiguration.Window.DefaultWidth;
 
 
-        List<string> _paths = new List<string>();
-        string _FILENAME = "PATHS.json";
-
-        public List<string> Paths
-        {
-            get => _paths;
-            set => Set(ref _paths, value);
-        }
-
-        public string FILENAME
-        {
-            get => _FILENAME;
-        }
-
 
         public double WinHeight
         {

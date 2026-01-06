@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAPICodePack.Shell;
+﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Shell;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -68,7 +70,9 @@ namespace Iconrrousel.Main
         }
         #endregion
 
-
+        List<string> _paths = new List<string>();
+        readonly string _PATHS_FILE = "Paths.json";
+        
         string[] _filesDropped = new string[] { };
 
         public MainWindow()
@@ -81,14 +85,14 @@ namespace Iconrrousel.Main
             this.AllowDrop = true;
 
 
-            if (File.Exists(App.Data.FILENAME))
+            if (File.Exists(_PATHS_FILE))
             {
-                var json = File.ReadAllText(App.Data.FILENAME);
+                var json = File.ReadAllText(_PATHS_FILE);
                 var items = JsonConvert.DeserializeObject<List<string>>(json);
 
                 foreach (var item in items)
                 {
-                    App.Data.Paths.Add(item);
+                    _paths.Add(item);
                     IconsPanel.Children.Add(getButton(item));
 
                 }
@@ -96,8 +100,8 @@ namespace Iconrrousel.Main
 
             /// TO-DO:
             /// UN SCROLL MAS SUAVE
-
             /// UNA PANTALLA DE CONFIGURACION: autostart, paleta de colores, resize de la ventana (+iconos), siempre arriba, mostrar nombres
+            /// Refactorizar Para sacar tamano de la ventana de App.Data y para ver si se puede dejar de usar esa configuracion compartida
 
         }
 
@@ -136,7 +140,7 @@ namespace Iconrrousel.Main
 
             deleteItem.Click += (s, e) =>
             {
-                App.Data.Paths.Remove(item);
+                _paths.Remove(item);
                 IconsPanel.Children.Remove(bttn);
                 updateJson();
             };
@@ -169,7 +173,7 @@ namespace Iconrrousel.Main
         private void updatePanel()
         {
             IconsPanel.Children.Clear();
-            foreach (var path in App.Data.Paths)
+            foreach (var path in _paths)
             {
                 IconsPanel.Children.Add(getButton(path));
             }
@@ -177,19 +181,19 @@ namespace Iconrrousel.Main
 
         public void updateJson()
         {
-            string json = JsonConvert.SerializeObject(App.Data.Paths, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(App.Data.FILENAME, json);
+            string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(_PATHS_FILE, json);
         }
 
         private void updatePaths(string[] filesDropped)
         {
             foreach (var path in _filesDropped)
             {
-                if (!App.Data.Paths.Contains(path))
-                    App.Data.Paths.Add(path);
+                if (!_paths.Contains(path))
+                    _paths.Add(path);
             }
 
-            App.Data.Paths.Sort();
+            _paths.Sort();
         }
 
         public static ImageSource GetHighQualityIcon(string path)
@@ -223,12 +227,27 @@ namespace Iconrrousel.Main
             settWin.Show();
         }
 
-        internal void ClearAllIcons()
+        public void ClearAllIcons()
         {
-            App.Data.Paths.Clear();
+            _paths.Clear();
             updateJson();
             updatePanel();
 
+        }
+
+        public void SetStartup(bool enable)
+        {
+            const string appName = "Iconroussel";
+            string exePath = Assembly.GetExecutingAssembly().Location;
+
+            using (var key = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", true))
+            {
+                if (enable)
+                    key.SetValue(appName, exePath);
+                else
+                    key.DeleteValue(appName, false);
+            }
         }
     }
 
