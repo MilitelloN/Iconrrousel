@@ -73,7 +73,7 @@ namespace Iconrrousel.Main
 
         List<string> _paths = new List<string>();
         readonly string _PATHS_FILE = "Paths.json";
-        
+
         string[] _filesDropped = new string[] { };
 
         public MainWindow()
@@ -82,7 +82,7 @@ namespace Iconrrousel.Main
             ApplySettings();
 
             InitializeComponent();
-            
+
 
 
 
@@ -126,7 +126,7 @@ namespace Iconrrousel.Main
             double screenTop = screens[monitorIndex].WorkingArea.Top;
 
             Left = screenLeft + (screenWidth - ActualWidth) / 2;
-            Top = screenTop; 
+            Top = screenTop;
         }
 
         private void ApplySettings()
@@ -204,7 +204,11 @@ namespace Iconrrousel.Main
 
             bttn.Click += (s, e) =>
             {
-                MessageBox.Show("Icon clicked!");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = item,
+                    UseShellExecute = true
+                });
             };
 
             var menu = new ContextMenu();
