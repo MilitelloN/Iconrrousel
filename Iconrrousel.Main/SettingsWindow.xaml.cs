@@ -49,8 +49,23 @@ namespace Iconrrousel.Main
 
         private void DeleteAllIcons_Click(object sender, RoutedEventArgs e)
         {
-            _main.ClearAllIcons();
-            this.Close();
+            DialogResult result = MessageBox.Show(
+                 "This actions CAN NOT be undone",
+                 "Delete Confirmation",
+                 MessageBoxButtons.YesNo,
+                 MessageBoxIcon.Question
+             );
+
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                _main.ClearAllIcons();
+                this.Close();
+            }
+            else
+            {
+                this.Close();
+            }
+            
         }
 
         private void SaveChanges()
