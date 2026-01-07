@@ -9,10 +9,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Iconrrousel.Main
 {
@@ -22,7 +24,7 @@ namespace Iconrrousel.Main
     public partial class SettingsWindow : Window
     {
         private readonly MainWindow _main;
-        
+
         Dictionary<string, object> settings = new Dictionary<string, object>();
         public SettingsWindow(MainWindow main)
         {
@@ -51,7 +53,7 @@ namespace Iconrrousel.Main
             this.Close();
         }
 
-        private void SaveChanges_Click(object sender, RoutedEventArgs e)
+        private void SaveChanges()
         {
 
             _main.SetStartup((bool)StartUpCbox.IsChecked);
@@ -74,12 +76,28 @@ namespace Iconrrousel.Main
 
         private void CloseWin_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            DialogResult result = MessageBox.Show(
+                 "Would you like to save the changes?",
+                 "Save Confirmation",
+                 MessageBoxButtons.YesNo,
+                 MessageBoxIcon.Question
+             );
+
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                SaveChanges();
+            }
+            else
+            {
+                this.Close();
+            }
+            
+            
         }
 
         private void CloseApp_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            System.Windows.Application.Current.Shutdown();
         }
 
         private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)

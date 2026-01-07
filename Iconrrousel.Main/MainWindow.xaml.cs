@@ -80,7 +80,11 @@ namespace Iconrrousel.Main
         {
             DataContext = App.Data;
             ApplySettings();
+
             InitializeComponent();
+            
+
+
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
 
@@ -102,9 +106,27 @@ namespace Iconrrousel.Main
 
             /// TO-DO:
             /// UN SCROLL MAS SUAVE
-            /// UNA PANTALLA DE CONFIGURACION: autostart, paleta de colores, resize de la ventana (+iconos), siempre arriba, mostrar nombres
-            /// Refactorizar Para sacar tamano de la ventana de App.Data y para ver si se puede dejar de usar esa configuracion compartida
+            /// UNA PANTALLA DE CONFIGURACION: , paleta de colores, resize de la ventana (+iconos),
+        }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            int monitorIndex = 1;
+            /// HACERLO CONFIGURABLE, MOSTRAR EN SETTINGS UN CONTADOR CON EL NUMERO DE MONITORES DETECTADOS
+            var screens = System.Windows.Forms.Screen.AllScreens;
+
+            if (monitorIndex < screens.Length)
+            {
+                Left = screens[monitorIndex].WorkingArea.Left;
+                Top = screens[monitorIndex].WorkingArea.Top;
+            }
+
+            double screenWidth = screens[monitorIndex].WorkingArea.Width;
+            double screenLeft = screens[monitorIndex].WorkingArea.Left;
+            double screenTop = screens[monitorIndex].WorkingArea.Top;
+
+            Left = screenLeft + (screenWidth - ActualWidth) / 2;
+            Top = screenTop; 
         }
 
         private void ApplySettings()

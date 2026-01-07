@@ -23,6 +23,10 @@
                 <ComboBox x:Name="ThemeCombo" Width="120" Margin="0,3" HorizontalAlignment="Left" SelectedIndex="0">
                     <ComboBoxItem Content="Dark theme" />
                     <ComboBoxItem Content="Light theme" />
+                    <ComboBoxItem Content="Beige theme" />
+                    <ComboBoxItem Content="Blue theme" />
+                    <ComboBoxItem Content="Pink theme" />
+                    <ComboBoxItem Content="Red theme" />
                 </ComboBox>
             </StackPanel>
         </GroupBox>
@@ -40,7 +44,7 @@
 
         <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,4,0,0">
             <Button Content="Delete all icons" Width="120" Height="24" Click="DeleteAllIcons_Click" Margin="0,0,0,6" />
-            <Button Content="Close settings" Width="120" Height="24" Click="CloseWin_Click" Margin="0,0,0,6" />
+            <Button Content="Save and close" Width="120" Height="24" Click="CloseWin_Click" Margin="0,0,0,6" />
             <Button Content="Close application" Width="120" Height="24" Click="CloseApp_Click" />
         </StackPanel>
     </Grid>
