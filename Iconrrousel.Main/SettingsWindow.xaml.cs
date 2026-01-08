@@ -1,9 +1,11 @@
 ﻿using Iconrrousel.Main.Configuration;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,6 +28,8 @@ namespace Iconrrousel.Main
     public partial class SettingsWindow : Window
     {
         private readonly MainWindow _main;
+        public readonly static string _CONFIG_FILE = "Settings.json";
+        private SettingsFields _settings;
 
         public SettingsWindow(MainWindow main)
         {
@@ -101,7 +105,8 @@ namespace Iconrrousel.Main
                 (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex, 
                 (SettingsFields.IconSizeOption)getIconSizeFromString(selected.Tag.ToString()));
 
-            App.Data.SaveSettings(settings);          
+            SaveSettings(settings);
+            App.Data.UpdateMainWindow(settings);
             this.Close();
         }
 
@@ -129,5 +134,35 @@ namespace Iconrrousel.Main
             System.Windows.Application.Current.Shutdown();
         }
 
+        
+
+        public void SaveSettings(SettingsFields settings)
+        {
+            string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(_CONFIG_FILE, json);
+            _settings = settings;
+            SetStartup(settings._startup);
+
+        }
+
+        public void SetStartup(bool enable)
+        {
+            const string appName = "Iconroussel";
+            string exePath = Assembly.GetExecutingAssembly().Location;
+
+            using (var key = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", true))
+            {
+                if (enable)
+                    key.SetValue(appName, exePath);
+                else
+                    key.DeleteValue(appName, false);
+            }
+        }
+
+        public SettingsFields GetSettings()
+        {
+            return _settings;
+        }
     }
 }

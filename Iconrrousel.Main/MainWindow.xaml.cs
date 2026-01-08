@@ -78,8 +78,8 @@ namespace Iconrrousel.Main
 
         public MainWindow()
         {
-            DataContext = App.Data;
             App.Data.LoadSettings();
+            DataContext = App.Data;
 
             InitializeComponent();
 

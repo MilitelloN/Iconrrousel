@@ -11,6 +11,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -28,7 +29,7 @@ namespace Iconrrousel.Main
             base.OnStartup(e);
 
             var main = new MainWindow();
-            
+
             main.Show();
 
         }
@@ -40,9 +41,7 @@ namespace Iconrrousel.Main
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public readonly string _CONFIG_FILE = "Settings.json";
-
-        public static SettingsFields _settings;
+        public readonly static string _CONFIG_FILE = "Settings.json";
         private bool _showIconNames;
         private int _themeSelected;
 
@@ -70,47 +69,30 @@ namespace Iconrrousel.Main
 
         public SettingsFields LoadSettings()
         {
+            SettingsFields settings;
             if (File.Exists(_CONFIG_FILE))
             {
                 var json = File.ReadAllText(_CONFIG_FILE);
-                _settings = JsonConvert.DeserializeObject<SettingsFields>(json);
+                settings = JsonConvert.DeserializeObject<SettingsFields>(json);
             }
             else
             {
-                _settings = new SettingsFields();
-                string json = JsonConvert.SerializeObject(_settings, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText(App.Data._CONFIG_FILE, json);
+                settings = new SettingsFields();
+                string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(_CONFIG_FILE, json);
             }
-            return _settings;
+
+            UpdateMainWindow(settings);
+
+            return settings;
         }
 
-        public void SaveSettings(SettingsFields settings)
+        public void UpdateMainWindow(SettingsFields settings)
         {
-            string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(_CONFIG_FILE, json);
-            _settings = settings;
-            SetStartup(settings._startup);
-
+            ShowIconNames = settings._displayNames;
+            ThemeSelected = (int)settings._themeOption;
         }
 
-        public void SetStartup(bool enable)
-        {
-            const string appName = "Iconroussel";
-            string exePath = Assembly.GetExecutingAssembly().Location;
 
-            using (var key = Registry.CurrentUser.OpenSubKey(
-                @"Software\Microsoft\Windows\CurrentVersion\Run", true))
-            {
-                if (enable)
-                    key.SetValue(appName, exePath);
-                else
-                    key.DeleteValue(appName, false);
-            }
-        }
-
-        public SettingsFields GetSettings()
-        {
-            return _settings;
-        }
     }
 }
