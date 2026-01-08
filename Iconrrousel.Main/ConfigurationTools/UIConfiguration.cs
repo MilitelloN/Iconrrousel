@@ -81,5 +81,35 @@ namespace Iconrrousel.Main
             // Margins
             public static readonly Thickness ButtonMargin = new Thickness(10, 6, 10, 6);
         }
+
+        // Theme Colors Configuration
+        public static class ThemeColors
+        {
+            public static readonly SolidColorBrush ScrollButtonBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush ScrollButtonHoverBrush = new SolidColorBrush(Color.FromArgb(0x38, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush ScrollButtonPressedBrush = new SolidColorBrush(Color.FromArgb(0x52, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush ScrollButtonForegroundBrush = Brushes.White;
+
+            public static readonly SolidColorBrush TopButtonBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush TopButtonHoverBrush = new SolidColorBrush(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush TopButtonPressedBrush = new SolidColorBrush(Color.FromArgb(0x70, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush TopButtonForegroundBrush = Brushes.White;
+
+            public static readonly SolidColorBrush BorderBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0x00, 0x00, 0x00));
+            public static readonly Color ShadowColor = Colors.Black;
+
+            static ThemeColors()
+            {
+                ScrollButtonBackgroundBrush.Freeze();
+                ScrollButtonHoverBrush.Freeze();
+                ScrollButtonPressedBrush.Freeze();
+                ScrollButtonForegroundBrush.Freeze();
+                TopButtonBackgroundBrush.Freeze();
+                TopButtonHoverBrush.Freeze();
+                TopButtonPressedBrush.Freeze();
+                TopButtonForegroundBrush.Freeze();
+                BorderBackgroundBrush.Freeze();
+            }
+        }
     }
 }

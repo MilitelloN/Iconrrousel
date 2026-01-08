@@ -25,8 +25,8 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <conv:ShowNamesToSizeConverter x:Key="ShowNamesToSize" />
         <Style x:Key="ModernScrollButton" TargetType="Button">
-            <Setter Property="Background" Value="#1AFFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{Binding ScrollButtonBackground, Source={x:Static local:App.Data}}"/>
+            <Setter Property="Foreground" Value="{Binding ScrollButtonForeground, Source={x:Static local:App.Data}}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -42,10 +42,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#38FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding ScrollButtonHover, Source={x:Static local:App.Data}}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#52FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding ScrollButtonPressed, Source={x:Static local:App.Data}}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -54,8 +54,8 @@
         </Style>
 
         <Style x:Key="TopButton" TargetType="Button">
-            <Setter Property="Background" Value="#30FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"/>
+            <Setter Property="Foreground" Value="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -70,10 +70,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#50FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding TopButtonHover, Source={x:Static local:App.Data}}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#70FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding TopButtonPressed, Source={x:Static local:App.Data}}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -82,12 +82,12 @@
         </Style>
     </Window.Resources>
     
-    <Border Background="#E0000000" 
+    <Border Background="{Binding BorderBackground, Source={x:Static local:App.Data}}" 
             CornerRadius="15" 
             Margin="10"
             Padding="6">
         <Border.Effect>
-            <DropShadowEffect Color="Black" 
+            <DropShadowEffect Color="{Binding ShadowColor, Source={x:Static local:App.Data}}" 
                             Direction="270" 
                             ShadowDepth="5" 
                             BlurRadius="20" 
