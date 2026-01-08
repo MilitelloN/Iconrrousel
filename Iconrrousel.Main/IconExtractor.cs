@@ -18,11 +18,19 @@ namespace Iconrrousel.Main
         private const int SHIL_JUMBO = 0x4;
         private const uint SHGFI_SYSICONINDEX = 0x4000;
 
+        private static readonly Dictionary<string, ImageSource> _iconCache = new Dictionary<string, ImageSource>();
+
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern int SHGetImageList(int iImageList, ref Guid riid, out IImageList ppv);
 
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO pszFi, uint cbFileInfo, uint uFlags);
+
+        [DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool DestroyIcon(IntPtr hIcon);
 
         [ComImport]
         [Guid("46EB5926-582E-4017-9FDF-E8998DAA0950")]
@@ -54,51 +62,72 @@ namespace Iconrrousel.Main
 
         public static ImageSource GetJumboIcon(string filePath)
         {
+            if (_iconCache.TryGetValue(filePath, out ImageSource cachedIcon))
+            {
+                return cachedIcon;
+            }
+
             SHFILEINFO shinfo = new SHFILEINFO();
-            // Obtener el índice del icono en el sistema
             SHGetFileInfo(filePath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), SHGFI_SYSICONINDEX);
 
             Guid iidImageList = new Guid("46EB5926-582E-4017-9FDF-E8998DAA0950");
-            IImageList iml;
-
-            // Cargar la lista de imágenes JUMBO
-            SHGetImageList(SHIL_JUMBO, ref iidImageList, out iml);
-
+            IImageList iml = null;
             IntPtr hIcon = IntPtr.Zero;
-            iml.GetIcon(shinfo.iIcon, 1, out hIcon); // 1 = ILD_TRANSPARENT
 
-            Bitmap bitmap = Icon.FromHandle(hIcon).ToBitmap();
-
-            using (Bitmap originalBmp = Icon.FromHandle(hIcon).ToBitmap())
+            try
             {
-                using (Bitmap croppedBmp = CropTransparent(originalBmp)) // <-- AÑADE ESTO
+                SHGetImageList(SHIL_JUMBO, ref iidImageList, out iml);
+                iml.GetIcon(shinfo.iIcon, 1, out hIcon); // ILD_TRANSPARENT
+
+                using (var icon = Icon.FromHandle(hIcon))
+                using (var bitmap = icon.ToBitmap())
+                using (var croppedBmp = CropTransparent(bitmap))
                 {
                     IntPtr hBitmap = croppedBmp.GetHbitmap();
                     try
                     {
-                        return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                        var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                             hBitmap,
                             IntPtr.Zero,
                             Int32Rect.Empty,
                             BitmapSizeOptions.FromEmptyOptions());
+                        source.Freeze();
+
+                        _iconCache[filePath] = source;
+                        return source;
                     }
                     finally
                     {
-                        // ¡Importante! Liberar memoria GDI para evitar fugas (Memory Leaks)
                         DeleteObject(hBitmap);
                     }
                 }
             }
+            finally
+            {
+                if (hIcon != IntPtr.Zero)
+                    DestroyIcon(hIcon);
+
+                if (iml != null)
+                    Marshal.ReleaseComObject(iml);
+            }
         }
 
-        [DllImport("gdi32.dll")]
-        public static extern bool DeleteObject(IntPtr hObject);     
+        public static void ClearCache()
+        {
+            _iconCache.Clear();
+        }
+
+        public static void RemoveFromCache(string filePath)
+        {
+            _iconCache.Remove(filePath);
+        }
 
         private static Bitmap CropTransparent(Bitmap bmp)
         {
             var rect = GetBoundingBox(bmp);
-            if (rect == Rectangle.Empty) return bmp;
-            return bmp.Clone(rect, bmp.PixelFormat);
+            return rect == Rectangle.Empty
+                ? bmp.Clone(new Rectangle(0, 0, bmp.Width, bmp.Height), bmp.PixelFormat)
+                : bmp.Clone(rect, bmp.PixelFormat);
         }
 
         private static Rectangle GetBoundingBox(Bitmap bmp)

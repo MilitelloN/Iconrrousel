@@ -61,8 +61,6 @@ namespace Iconrrousel.Main
         List<string> _paths = new List<string>();
         readonly string _PATHS_FILE = "Paths.json";
 
-        string[] _filesDropped = new string[] { };
-
         public MainWindow()
         {
             DataContext = App.Data;
@@ -72,10 +70,9 @@ namespace Iconrrousel.Main
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
             App.IconService.OnDeleteAllIcons += DeleteAllIcons;
-
+            Closed += MainWindow_Closed;
 
             this.AllowDrop = true;
-
 
             if (File.Exists(_PATHS_FILE))
             {
@@ -86,29 +83,35 @@ namespace Iconrrousel.Main
                 {
                     _paths.Add(item);
                     IconsPanel.Children.Add(getButton(item));
-
                 }
             }
         }
 
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            App.IconService.OnDeleteAllIcons -= DeleteAllIcons;
+            CleanupIconPanel();
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            /// ESTO HAY QUE VER SI SE PUEDE CONFIGURAR EN LA PANTALLA Y COMO SE ACTUALIZA EL CAMBIO
-            int monitorIndex = 1;
+            int monitorIndex = 0;
             var screens = System.Windows.Forms.Screen.AllScreens;
+
+            if (screens.Length > 1 && monitorIndex < screens.Length)
+            {
+                monitorIndex = 1;
+            }
 
             if (monitorIndex < screens.Length)
             {
-                Left = screens[monitorIndex].WorkingArea.Left;
-                Top = screens[monitorIndex].WorkingArea.Top;
+                double screenWidth = screens[monitorIndex].WorkingArea.Width;
+                double screenLeft = screens[monitorIndex].WorkingArea.Left;
+                double screenTop = screens[monitorIndex].WorkingArea.Top;
+
+                Left = screenLeft + (screenWidth - ActualWidth) / 2;
+                Top = screenTop;
             }
-
-            double screenWidth = screens[monitorIndex].WorkingArea.Width;
-            double screenLeft = screens[monitorIndex].WorkingArea.Left;
-            double screenTop = screens[monitorIndex].WorkingArea.Top;
-
-            Left = screenLeft + (screenWidth - ActualWidth) / 2;
-            Top = screenTop;
         }
 
         private UIElement getButton(string item)
@@ -128,7 +131,7 @@ namespace Iconrrousel.Main
 
             var img = new System.Windows.Controls.Image
             {
-                Tag = "NewIcon",
+                Tag = item,
                 Stretch = System.Windows.Media.Stretch.Uniform,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center
@@ -171,27 +174,16 @@ namespace Iconrrousel.Main
                 Margin = UIConfiguration.Icon.ButtonMargin,
                 MinWidth = UIConfiguration.Icon.ButtonWidth,
                 MinHeight = UIConfiguration.Icon.ButtonHeight,
-                Content = panel
+                Content = panel,
+                Tag = item
             };
 
-            bttn.Click += (s, e) =>
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = item,
-                    UseShellExecute = true
-                });
-            };
+            bttn.Click += IconButton_Click;
 
             var menu = new ContextMenu();
             var deleteItem = new MenuItem { Header = "Delete Icon" };
-
-            deleteItem.Click += (s, e) =>
-            {
-                _paths.Remove(item);
-                IconsPanel.Children.Remove(bttn);
-                updateJson();
-            };
+            deleteItem.Click += DeleteIcon_Click;
+            deleteItem.Tag = bttn;
 
             menu.Items.Add(deleteItem);
             bttn.ContextMenu = menu;
@@ -199,6 +191,77 @@ namespace Iconrrousel.Main
             return bttn;
         }
 
+        private void IconButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string path)
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                });
+            }
+        }
+
+        private void DeleteIcon_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem && menuItem.Tag is Button bttn && bttn.Tag is string item)
+            {
+                _paths.Remove(item);
+                IconsPanel.Children.Remove(bttn);
+                IconExtractor.RemoveFromCache(item);
+                CleanupButton(bttn);
+                updateJson();
+            }
+        }
+
+        private void CleanupButton(Button bttn)
+        {
+            if (bttn.ContextMenu != null)
+            {
+                foreach (MenuItem item in bttn.ContextMenu.Items)
+                {
+                    item.Click -= DeleteIcon_Click;
+                    item.Tag = null;
+                }
+                bttn.ContextMenu.Items.Clear();
+                bttn.ContextMenu = null;
+            }
+
+            bttn.Click -= IconButton_Click;
+            
+            if (bttn.Content is StackPanel panel)
+            {
+                foreach (var child in panel.Children)
+                {
+                    if (child is System.Windows.Controls.Image img)
+                    {
+                        BindingOperations.ClearAllBindings(img);
+                        img.Source = null;
+                    }
+                    else if (child is TextBlock tb)
+                    {
+                        BindingOperations.ClearAllBindings(tb);
+                    }
+                }
+                panel.Children.Clear();
+            }
+            
+            bttn.Content = null;
+            bttn.Tag = null;
+        }
+
+        private void CleanupIconPanel()
+        {
+            foreach (var child in IconsPanel.Children)
+            {
+                if (child is Button btn)
+                {
+                    CleanupButton(btn);
+                }
+            }
+            IconsPanel.Children.Clear();
+        }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
         {
@@ -210,16 +273,17 @@ namespace Iconrrousel.Main
 
         private void Grid_Drop(object sender, DragEventArgs e)
         {
-            _filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
+            var filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            updatePaths(_filesDropped);
+            updatePaths(filesDropped);
             updateJson();
             updatePanel();
         }
 
         private void updatePanel()
         {
-            IconsPanel.Children.Clear();
+            CleanupIconPanel();
+            
             foreach (var path in _paths)
             {
                 IconsPanel.Children.Add(getButton(path));
@@ -234,7 +298,7 @@ namespace Iconrrousel.Main
 
         private void updatePaths(string[] filesDropped)
         {
-            foreach (var path in _filesDropped)
+            foreach (var path in filesDropped)
             {
                 if (!_paths.Contains(path))
                     _paths.Add(path);
@@ -245,15 +309,25 @@ namespace Iconrrousel.Main
 
         public static ImageSource GetHighQualityIcon(string path)
         {
-            var shellFile = ShellFile.FromFilePath(path);
-            Bitmap bitmap = shellFile.Thumbnail.ExtraLargeBitmap;
-
-            return Imaging.CreateBitmapSourceFromHBitmap(
-                bitmap.GetHbitmap(),
-                IntPtr.Zero,
-                Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions()
-            );
+            using (var shellFile = ShellFile.FromFilePath(path))
+            using (var bitmap = shellFile.Thumbnail.ExtraLargeBitmap)
+            {
+                var hBitmap = bitmap.GetHbitmap();
+                try
+                {
+                    var source = Imaging.CreateBitmapSourceFromHBitmap(
+                        hBitmap,
+                        IntPtr.Zero,
+                        Int32Rect.Empty,
+                        BitmapSizeOptions.FromEmptyOptions());
+                    source.Freeze();
+                    return source;
+                }
+                finally
+                {
+                    IconExtractor.DeleteObject(hBitmap);
+                }
+            }
         }
 
 
@@ -270,15 +344,9 @@ namespace Iconrrousel.Main
         private void DeleteAllIcons()
         {
             _paths.Clear();
+            IconExtractor.ClearCache();
             updateJson();
             updatePanel();
         }
-       
-        
     }
-
-
-
-
-
 }
