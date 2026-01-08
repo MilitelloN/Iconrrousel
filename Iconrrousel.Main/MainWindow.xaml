@@ -9,6 +9,7 @@
     Title="Iconroussel"
     Height="160"
     MinWidth="150"
+    MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}"
     SizeToContent="Width"
     ResizeMode="NoResize"
     Loaded="Window_Loaded"
@@ -57,7 +58,8 @@
     <Border Background="{Binding BorderBackground, Source={x:Static local:App.Data}}" 
             CornerRadius="15" 
             Margin="8"
-            Padding="4">
+            Padding="4"
+            MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}">
         <Border.Effect>
             <DropShadowEffect Color="{Binding ShadowColor, Source={x:Static local:App.Data}}" 
                             Direction="270" 
@@ -75,7 +77,7 @@
                 <!-- Scroll content -->
                 <ScrollViewer x:Name="IconViewer" 
                               MinWidth="50"
-                              MaxWidth="600"
+                              MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}"
                               Margin="0"
                               Padding="40,2,40,6"
                               HorizontalScrollBarVisibility="Hidden" 
@@ -119,3 +121,5 @@
         </Grid>
     </Border>
 </Window>
+
+

@@ -74,6 +74,7 @@ namespace Iconrrousel.Main
         public readonly static string _CONFIG_FILE = "Settings.json";
         private bool _showIconNames;
         private int _themeSelected;
+        private int _windowSizeSelected;
 
         private Brush _scrollButtonBackground = UIConfiguration.ThemeColors.ScrollButtonBackgroundBrush;
         private Brush _scrollButtonHover = UIConfiguration.ThemeColors.ScrollButtonHoverBrush;
@@ -89,6 +90,7 @@ namespace Iconrrousel.Main
         private Color _shadowColor = UIConfiguration.ThemeColors.ShadowColor;
         private Brush _iconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
         private Brush _comboItemForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
+        private double _windowMaxWidth = 600;
 
         public bool ShowIconNames
         {
@@ -100,6 +102,12 @@ namespace Iconrrousel.Main
         {
             get => _themeSelected;
             set => Set(ref _themeSelected, value);
+        }
+
+        public int WindowSizeSelected
+        {
+            get => _windowSizeSelected;
+            set => Set(ref _windowSizeSelected, value);
         }
 
         public Brush ScrollButtonBackground
@@ -174,6 +182,12 @@ namespace Iconrrousel.Main
             set => Set(ref _comboItemForeground, value);
         }
 
+        public double WindowMaxWidth
+        {
+            get => _windowMaxWidth;
+            set => Set(ref _windowMaxWidth, value);
+        }
+
         protected void Set<T>(ref T field, T value,
         [System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
@@ -208,7 +222,9 @@ namespace Iconrrousel.Main
         {
             ShowIconNames = settings._displayNames;
             ThemeSelected = (int)settings._themeOption;
+            WindowSizeSelected = (int)settings._windowSizeOption;
             ApplyTheme(settings._themeOption);
+            ApplyWindowSize(settings._windowSizeOption);
         }
 
         private void ApplyTheme(SettingsFields.ThemeOption theme)
@@ -316,6 +332,23 @@ namespace Iconrrousel.Main
                     ShadowColor = UIConfiguration.ThemeColors.ShadowColor;
                     IconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
                     ComboItemForeground = IconTextForeground;
+                    break;
+            }
+        }
+
+        private void ApplyWindowSize(SettingsFields.WindowSizeOption option)
+        {
+            switch (option)
+            {
+                case SettingsFields.WindowSizeOption.Small:
+                    WindowMaxWidth = 400;
+                    break;
+                case SettingsFields.WindowSizeOption.Large:
+                    WindowMaxWidth = 1200;
+                    break;
+                case SettingsFields.WindowSizeOption.Medium:
+                default:
+                    WindowMaxWidth = 800;
                     break;
             }
         }

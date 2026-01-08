@@ -44,7 +44,7 @@ namespace Iconrrousel.Main
             NamesCbox.IsChecked = settings._displayNames;
             var radButton = RadioStack.Children
                 .OfType<System.Windows.Controls.RadioButton>()
-                .FirstOrDefault(r => r.Tag.ToString() == settings._iconSizeOption.ToString())
+                .FirstOrDefault(r => r.Tag.ToString() == settings._windowSizeOption.ToString())
                 .IsChecked = true;
             ThemeCombo.SelectedIndex = (int)settings._themeOption;
         }
@@ -66,7 +66,7 @@ namespace Iconrrousel.Main
 
         }
 
-        private int getIconSizeFromString(string size)
+        private int getWindowSizeFromString(string size)
         {
             switch (size)
             {
@@ -96,11 +96,11 @@ namespace Iconrrousel.Main
             SettingsFields settings = new SettingsFields((bool)StartUpCbox.IsChecked, 
                 (bool)NamesCbox.IsChecked, 
                 (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex, 
-                (SettingsFields.IconSizeOption)getIconSizeFromString(selected.Tag.ToString()));
+                (SettingsFields.WindowSizeOption)getWindowSizeFromString(selected.Tag.ToString()));
 
             SaveSettings(settings);
             App.Data.UpdateMainWindow(settings);
-            this.Close();
+            //this.Close();
         }
 
         private void CloseWin_Click(object sender, RoutedEventArgs e)

@@ -89,10 +89,6 @@ namespace Iconrrousel.Main
 
                 }
             }
-
-            /// TO-DO:
-            /// UN SCROLL MAS SUAVE
-            /// UNA PANTALLA DE CONFIGURACION:  resize de la ventana (+iconos),
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

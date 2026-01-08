@@ -166,7 +166,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Icon size" Grid.Row="1" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
+            <GroupBox Header="Window size" Grid.Row="1" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
                 <StackPanel>
                     <TextBlock Text="Choose the size of the program" Margin="0,0,0,7" TextWrapping="Wrap" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
                     <StackPanel x:Name="RadioStack" Orientation="Horizontal" HorizontalAlignment="Left">

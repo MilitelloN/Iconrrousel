@@ -19,7 +19,7 @@ namespace Iconrrousel.Main.Configuration
             Red 
         }
 
-        public enum IconSizeOption
+        public enum WindowSizeOption
         {
             Small,
             Medium,
@@ -29,21 +29,22 @@ namespace Iconrrousel.Main.Configuration
         public ThemeOption _themeOption { get; set; }
         public bool _startup { get; set; }
         public bool _displayNames { get; set; }
-        public IconSizeOption _iconSizeOption { get; set; }
+        public WindowSizeOption _windowSizeOption { get; set; }
 
         public SettingsFields()
         {
             _startup = false;
             _displayNames = false;
             _themeOption = ThemeOption.Dark;
+            _windowSizeOption = WindowSizeOption.Medium;
         }
 
-        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, IconSizeOption iconSizeOption)
+        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption)
         {
             _startup = startup;
             _displayNames = displayNames;
             _themeOption = theme;
-            _iconSizeOption = iconSizeOption;
+            _windowSizeOption = windowSizeOption;
         }
 
 
