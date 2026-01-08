@@ -135,7 +135,6 @@ namespace Iconrrousel.Main
             File.WriteAllText(_CONFIG_FILE, json);
             _settings = settings;
             SetStartup(settings._startup);
-
         }
 
         public void SetStartup(bool enable)
@@ -156,6 +155,11 @@ namespace Iconrrousel.Main
         public SettingsFields GetSettings()
         {
             return _settings;
+        }
+
+        private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }
