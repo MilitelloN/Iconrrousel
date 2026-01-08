@@ -74,6 +74,9 @@
     </ApplicationDefinition>
     <Compile Include="ConfigurationTools\SettingsFields.cs" />
     <Compile Include="ConfigurationTools\UIConfiguration.cs" />
+    <Content Include="icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -61,8 +62,29 @@ namespace Iconrrousel.Main
         List<string> _paths = new List<string>();
         readonly string _PATHS_FILE = "Paths.json";
 
+        private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
+        {
+            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
+            if (ex != null)
+            {
+                baseMsg += $" | Exception: {ex}";
+            }
+            Trace.WriteLine(baseMsg);
+        }
+
+        private static void LogStatic(string message, [CallerMemberName] string caller = null, Exception ex = null)
+        {
+            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
+            if (ex != null)
+            {
+                baseMsg += $" | Exception: {ex}";
+            }
+            Trace.WriteLine(baseMsg);
+        }
+
         public MainWindow()
         {
+            Log("Initializing MainWindow");
             DataContext = App.Data;
             App.Data.LoadSettings();
 
@@ -77,285 +99,438 @@ namespace Iconrrousel.Main
 
             if (File.Exists(_PATHS_FILE))
             {
-                var json = File.ReadAllText(_PATHS_FILE);
-                var items = JsonConvert.DeserializeObject<List<string>>(json);
-
-                foreach (var item in items)
+                try
                 {
-                    _paths.Add(item);
-                    IconsPanel.Children.Add(getButton(item));
+                    var json = File.ReadAllText(_PATHS_FILE);
+                    var items = JsonConvert.DeserializeObject<List<string>>(json);
+
+                    foreach (var item in items)
+                    {
+                        _paths.Add(item);
+                        IconsPanel.Children.Add(getButton(item));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("Error loading paths file", ex: ex);
                 }
             }
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (IsLoaded)
+            Log("SizeChanged");
+            try
             {
-                CenterWindowOnTopOfScreen();
+                if (IsLoaded)
+                {
+                    CenterWindowOnTopOfScreen();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Error in SizeChanged", ex: ex);
             }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            App.IconService.OnDeleteAllIcons -= DeleteAllIcons;
-            CleanupIconPanel();
+            Log("Closed event");
+            try
+            {
+                App.IconService.OnDeleteAllIcons -= DeleteAllIcons;
+                CleanupIconPanel();
+            }
+            catch (Exception ex)
+            {
+                Log("Error in Closed handler", ex: ex);
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            CenterWindowOnTopOfScreen();
+            Log("Loaded event");
+            try
+            {
+                CenterWindowOnTopOfScreen();
+            }
+            catch (Exception ex)
+            {
+                Log("Error in Loaded handler", ex: ex);
+            }
         }
 
         private void CenterWindowOnTopOfScreen()
         {
-            var screens = System.Windows.Forms.Screen.AllScreens;
-            var screen = screens.Length > 1 ? screens[1] : System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(this).Handle);
-            UpdateLayout();
+            Log("Centering window");
+            try
+            {
+                var screens = System.Windows.Forms.Screen.AllScreens;
+                var screen = screens.Length > 1 ? screens[1] : System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(this).Handle);
+                UpdateLayout();
 
-            double screenWidth = screen.WorkingArea.Width;
-            double screenLeft = screen.WorkingArea.Left;
-            double screenTop = screen.WorkingArea.Top;
+                double screenWidth = screen.WorkingArea.Width;
+                double screenLeft = screen.WorkingArea.Left;
+                double screenTop = screen.WorkingArea.Top;
 
-            Left = screenLeft + (screenWidth - ActualWidth) / 2;
-            Top = screenTop;
+                Left = screenLeft + (screenWidth - ActualWidth) / 2;
+                Top = screenTop;
+            }
+            catch (Exception ex)
+            {
+                Log("Error centering window", ex: ex);
+            }
         }
 
         private UIElement getButton(string item)
         {
-            var panel = new StackPanel
+            Log($"Creating button for {item}");
+            try
             {
-                Orientation = Orientation.Vertical,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+                var panel = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
 
-            var sizeBinding = new Binding("ShowIconNames")
+                var sizeBinding = new Binding("ShowIconNames")
+                {
+                    Source = App.Data,
+                    Converter = (IValueConverter)FindResource("ShowNamesToSize")
+                };
+
+                var img = new System.Windows.Controls.Image
+                {
+                    Tag = item,
+                    Stretch = System.Windows.Media.Stretch.Uniform,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                img.SetBinding(FrameworkElement.WidthProperty, sizeBinding);
+                img.SetBinding(FrameworkElement.HeightProperty, sizeBinding);
+                img.Source = IconExtractor.GetJumboIcon(item);
+                RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+
+                var nameBlock = new TextBlock
+                {
+                    Text = System.IO.Path.GetFileNameWithoutExtension(item),
+                    FontSize = 11,
+                    TextWrapping = TextWrapping.Wrap,
+                    TextAlignment = TextAlignment.Center,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    MaxWidth = UIConfiguration.Icon.ButtonWidth + 10,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 4, 0, 0)
+                };
+                nameBlock.SetBinding(TextBlock.ForegroundProperty, new Binding("IconTextForeground") { Source = App.Data });
+
+                var visibilityBinding = new Binding("ShowIconNames")
+                {
+                    Source = App.Data,
+                    Converter = new BooleanToVisibilityConverter()
+                };
+                nameBlock.SetBinding(TextBlock.VisibilityProperty, visibilityBinding);
+
+                panel.Children.Add(img);
+                panel.Children.Add(nameBlock);
+
+                var bttn = new Button
+                {
+                    Background = Brushes.Transparent,
+                    BorderBrush = Brushes.Transparent,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Padding = new Thickness(4, 4, 4, 6),
+                    Margin = UIConfiguration.Icon.ButtonMargin,
+                    MinWidth = UIConfiguration.Icon.ButtonWidth,
+                    MinHeight = UIConfiguration.Icon.ButtonHeight,
+                    Content = panel,
+                    Tag = item
+                };
+
+                bttn.Click += IconButton_Click;
+
+                var menu = new ContextMenu();
+                var deleteItem = new MenuItem { Header = "Delete Icon" };
+                deleteItem.Click += DeleteIcon_Click;
+                deleteItem.Tag = bttn;
+
+                menu.Items.Add(deleteItem);
+                bttn.ContextMenu = menu;
+
+                return bttn;
+            }
+            catch (Exception ex)
             {
-                Source = App.Data,
-                Converter = (IValueConverter)FindResource("ShowNamesToSize")
-            };
-
-            var img = new System.Windows.Controls.Image
-            {
-                Tag = item,
-                Stretch = System.Windows.Media.Stretch.Uniform,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-            img.SetBinding(FrameworkElement.WidthProperty, sizeBinding);
-            img.SetBinding(FrameworkElement.HeightProperty, sizeBinding);
-            img.Source = IconExtractor.GetJumboIcon(item);
-            RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
-
-            var nameBlock = new TextBlock
-            {
-                Text = System.IO.Path.GetFileNameWithoutExtension(item),
-                FontSize = 11,
-                TextWrapping = TextWrapping.Wrap,
-                TextAlignment = TextAlignment.Center,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                MaxWidth = UIConfiguration.Icon.ButtonWidth + 10,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 4, 0, 0)
-            };
-            nameBlock.SetBinding(TextBlock.ForegroundProperty, new Binding("IconTextForeground") { Source = App.Data });
-
-            var visibilityBinding = new Binding("ShowIconNames")
-            {
-                Source = App.Data,
-                Converter = new BooleanToVisibilityConverter()
-            };
-            nameBlock.SetBinding(TextBlock.VisibilityProperty, visibilityBinding);
-
-            panel.Children.Add(img);
-            panel.Children.Add(nameBlock);
-
-            var bttn = new Button
-            {
-                Background = Brushes.Transparent,
-                BorderBrush = Brushes.Transparent,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Padding = new Thickness(4, 4, 4, 6),
-                Margin = UIConfiguration.Icon.ButtonMargin,
-                MinWidth = UIConfiguration.Icon.ButtonWidth,
-                MinHeight = UIConfiguration.Icon.ButtonHeight,
-                Content = panel,
-                Tag = item
-            };
-
-            bttn.Click += IconButton_Click;
-
-            var menu = new ContextMenu();
-            var deleteItem = new MenuItem { Header = "Delete Icon" };
-            deleteItem.Click += DeleteIcon_Click;
-            deleteItem.Tag = bttn;
-
-            menu.Items.Add(deleteItem);
-            bttn.ContextMenu = menu;
-
-            return bttn;
+                Log($"Error creating button for {item}", ex: ex);
+                throw;
+            }
         }
 
         private void IconButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is string path)
+            Log("Icon button clicked");
+            try
             {
-                Process.Start(new ProcessStartInfo
+                if (sender is Button btn && btn.Tag is string path)
                 {
-                    FileName = path,
-                    UseShellExecute = true
-                });
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = path,
+                        UseShellExecute = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Error opening icon", ex: ex);
             }
         }
 
         private void DeleteIcon_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is MenuItem menuItem && menuItem.Tag is Button bttn && bttn.Tag is string item)
+            Log("Delete icon clicked");
+            try
             {
-                _paths.Remove(item);
-                IconsPanel.Children.Remove(bttn);
-                IconExtractor.RemoveFromCache(item);
-                CleanupButton(bttn);
-                updateJson();
+                if (sender is MenuItem menuItem && menuItem.Tag is Button bttn && bttn.Tag is string item)
+                {
+                    _paths.Remove(item);
+                    IconsPanel.Children.Remove(bttn);
+                    IconExtractor.RemoveFromCache(item);
+                    CleanupButton(bttn);
+                    updateJson();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Error deleting icon", ex: ex);
             }
         }
 
         private void CleanupButton(Button bttn)
         {
-            if (bttn.ContextMenu != null)
+            Log("Cleaning up button");
+            try
             {
-                foreach (MenuItem item in bttn.ContextMenu.Items)
+                if (bttn.ContextMenu != null)
                 {
-                    item.Click -= DeleteIcon_Click;
-                    item.Tag = null;
+                    foreach (MenuItem item in bttn.ContextMenu.Items)
+                    {
+                        item.Click -= DeleteIcon_Click;
+                        item.Tag = null;
+                    }
+                    bttn.ContextMenu.Items.Clear();
+                    bttn.ContextMenu = null;
                 }
-                bttn.ContextMenu.Items.Clear();
-                bttn.ContextMenu = null;
-            }
 
-            bttn.Click -= IconButton_Click;
-            
-            if (bttn.Content is StackPanel panel)
-            {
-                foreach (var child in panel.Children)
+                bttn.Click -= IconButton_Click;
+                
+                if (bttn.Content is StackPanel panel)
                 {
-                    if (child is System.Windows.Controls.Image img)
+                    foreach (var child in panel.Children)
                     {
-                        BindingOperations.ClearAllBindings(img);
-                        img.Source = null;
+                        if (child is System.Windows.Controls.Image img)
+                        {
+                            BindingOperations.ClearAllBindings(img);
+                            img.Source = null;
+                        }
+                        else if (child is TextBlock tb)
+                        {
+                            BindingOperations.ClearAllBindings(tb);
+                        }
                     }
-                    else if (child is TextBlock tb)
-                    {
-                        BindingOperations.ClearAllBindings(tb);
-                    }
+                    panel.Children.Clear();
                 }
-                panel.Children.Clear();
+                
+                bttn.Content = null;
+                bttn.Tag = null;
             }
-            
-            bttn.Content = null;
-            bttn.Tag = null;
+            catch (Exception ex)
+            {
+                Log("Error cleaning up button", ex: ex);
+            }
         }
 
         private void CleanupIconPanel()
         {
-            foreach (var child in IconsPanel.Children)
+            Log("Cleaning up icon panel");
+            try
             {
-                if (child is Button btn)
+                foreach (var child in IconsPanel.Children)
                 {
-                    CleanupButton(btn);
+                    if (child is Button btn)
+                    {
+                        CleanupButton(btn);
+                    }
                 }
+                IconsPanel.Children.Clear();
             }
-            IconsPanel.Children.Clear();
+            catch (Exception ex)
+            {
+                Log("Error cleaning icon panel", ex: ex);
+            }
         }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
+            Log("DragEnter");
+            try
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                    e.Effects = DragDropEffects.Copy;
+                else
+                    e.Effects = DragDropEffects.None;
+            }
+            catch (Exception ex)
+            {
+                Log("Error in DragEnter", ex: ex);
+            }
         }
 
         private void Grid_Drop(object sender, DragEventArgs e)
         {
-            var filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
+            Log("Drop");
+            try
+            {
+                var filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-            updatePaths(filesDropped);
-            updateJson();
-            updatePanel();
-            CenterWindowOnTopOfScreen();
+                updatePaths(filesDropped);
+                updateJson();
+                updatePanel();
+                CenterWindowOnTopOfScreen();
+            }
+            catch (Exception ex)
+            {
+                Log("Error in Drop", ex: ex);
+            }
         }
 
         private void updatePanel()
         {
-            CleanupIconPanel();
-            
-            foreach (var path in _paths)
+            Log("Updating panel");
+            try
             {
-                IconsPanel.Children.Add(getButton(path));
+                CleanupIconPanel();
+                
+                foreach (var path in _paths)
+                {
+                    IconsPanel.Children.Add(getButton(path));
+                }
+                CenterWindowOnTopOfScreen();
             }
-            CenterWindowOnTopOfScreen();
+            catch (Exception ex)
+            {
+                Log("Error updating panel", ex: ex);
+            }
         }
 
         public void updateJson()
         {
-            string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(_PATHS_FILE, json);
+            Log("Persisting paths to JSON");
+            try
+            {
+                string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(_PATHS_FILE, json);
+            }
+            catch (Exception ex)
+            {
+                Log("Error writing paths file", ex: ex);
+            }
         }
 
         private void updatePaths(string[] filesDropped)
         {
-            foreach (var path in filesDropped)
+            Log($"Updating paths with {filesDropped?.Length ?? 0} items");
+            try
             {
-                if (!_paths.Contains(path))
-                    _paths.Add(path);
-            }
+                foreach (var path in filesDropped)
+                {
+                    if (!_paths.Contains(path))
+                        _paths.Add(path);
+                }
 
-            _paths.Sort();
+                _paths.Sort();
+            }
+            catch (Exception ex)
+            {
+                Log("Error updating paths", ex: ex);
+            }
         }
 
         public static ImageSource GetHighQualityIcon(string path)
         {
-            using (var shellFile = ShellFile.FromFilePath(path))
-            using (var bitmap = shellFile.Thumbnail.ExtraLargeBitmap)
+            LogStatic($"Getting high quality icon for {path}");
+            try
             {
-                var hBitmap = bitmap.GetHbitmap();
-                try
+                using (var shellFile = ShellFile.FromFilePath(path))
+                using (var bitmap = shellFile.Thumbnail.ExtraLargeBitmap)
                 {
-                    var source = Imaging.CreateBitmapSourceFromHBitmap(
-                        hBitmap,
-                        IntPtr.Zero,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                    source.Freeze();
-                    return source;
+                    var hBitmap = bitmap.GetHbitmap();
+                    try
+                    {
+                        var source = Imaging.CreateBitmapSourceFromHBitmap(
+                            hBitmap,
+                            IntPtr.Zero,
+                            Int32Rect.Empty,
+                            BitmapSizeOptions.FromEmptyOptions());
+                        source.Freeze();
+                        return source;
+                    }
+                    finally
+                    {
+                        IconExtractor.DeleteObject(hBitmap);
+                    }
                 }
-                finally
-                {
-                    IconExtractor.DeleteObject(hBitmap);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogStatic("Error getting high quality icon", ex: ex);
+                throw;
             }
         }
 
 
         private void ScrollLeft_Click(object sender, RoutedEventArgs e)
         {
-            IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset - UIConfiguration.ScrollButtons.ScrollOffset);
+            Log("Scroll left");
+            try
+            {
+                IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset - UIConfiguration.ScrollButtons.ScrollOffset);
+            }
+            catch (Exception ex)
+            {
+                Log("Error scrolling left", ex: ex);
+            }
         }
 
         private void ScrollRight_Click(object sender, RoutedEventArgs e)
         {
-            IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset + UIConfiguration.ScrollButtons.ScrollOffset);
+            Log("Scroll right");
+            try
+            {
+                IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset + UIConfiguration.ScrollButtons.ScrollOffset);
+            }
+            catch (Exception ex)
+            {
+                Log("Error scrolling right", ex: ex);
+            }
         }
 
         private void DeleteAllIcons()
         {
-            _paths.Clear();
-            IconExtractor.ClearCache();
-            updateJson();
-            updatePanel();
+            Log("Deleting all icons");
+            try
+            {
+                _paths.Clear();
+                IconExtractor.ClearCache();
+                updateJson();
+                updatePanel();
+            }
+            catch (Exception ex)
+            {
+                Log("Error deleting all icons", ex: ex);
+            }
         }
     }
 }

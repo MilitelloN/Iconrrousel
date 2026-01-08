@@ -1,0 +1,21 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+	<Package Id="NMilitello.Iconrrousel.Installer" Name="Iconrrousel" Manufacturer="NMilitello" Version="1.0.0.0">
+		<MajorUpgrade DowngradeErrorMessage="The version you are trying to install is lower than the current version" />
+
+		<Feature Id="Main">
+			<ComponentGroupRef Id="FilesCmp" />
+		</Feature>
+
+		<StandardDirectory Id="ProgramFiles64Folder">
+			<Directory Id="INSTALLFOLDER" Name="Iconrrousel"/>
+		</StandardDirectory>
+
+		<ComponentGroup Id="FilesCmp" >
+			<Files Directory="INSTALLFOLDER" Include="**">
+				<Exclude Files="**.pdb"/>
+			</Files>
+		</ComponentGroup>
+
+		<ui:WixUI Id="WixUI_Minimal" />
+	</Package>
+</Wix>

@@ -1,3 +1,12 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Iconrrousel.Installer/Iconrrousel.Installer.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0" Id="d87a5d36-06a8-412b-8d7e-1f41ceace2a3">
+    <Platform Solution="*|Any CPU" Project="x64" />
+  </Project>
   <Project Path="Iconrrousel.Main/Iconrrousel.Main.csproj" Id="0c2f585d-7d1e-4282-a30d-2a2889b6bd3a" />
 </Solution>
