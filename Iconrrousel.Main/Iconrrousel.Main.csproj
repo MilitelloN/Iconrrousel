@@ -87,6 +87,7 @@
     </Compile>
     <Compile Include="Converters\ShowNamesToSizeConverter.cs" />
     <Compile Include="IconExtractor.cs" />
+    <Compile Include="IconService.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>

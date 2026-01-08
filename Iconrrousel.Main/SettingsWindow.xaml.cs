@@ -27,18 +27,15 @@ namespace Iconrrousel.Main
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        private readonly MainWindow _main;
         public readonly static string _CONFIG_FILE = "Settings.json";
         private SettingsFields _settings;
 
-        public SettingsWindow(MainWindow main)
+        public SettingsWindow()
         {
             DataContext = App.Data;
             InitializeComponent();
-            _main = main;
             SettingsFields settings = App.Data.LoadSettings();
             ApplySettings(settings);
-
         }
 
         private void ApplySettings(SettingsFields settings)
@@ -63,13 +60,9 @@ namespace Iconrrousel.Main
 
             if (result == System.Windows.Forms.DialogResult.Yes)
             {
-                _main.ClearAllIcons();
-                this.Close();
+                App.IconService.DeleteAllIcons();
             }
-            else
-            {
-                this.Close();
-            }
+            
 
         }
 

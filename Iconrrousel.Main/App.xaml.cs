@@ -1,10 +1,13 @@
 ﻿using Iconrrousel.Main.Configuration;
 using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
+using Application = System.Windows.Application;
 
 namespace Iconrrousel.Main
 {
@@ -13,6 +16,11 @@ namespace Iconrrousel.Main
     /// </summary>
     public partial class App : Application
     {
+        private NotifyIcon _trayIcon;
+        private SettingsWindow _settingsWindow;
+        public static IIconService IconService { get; } = new IconService();
+
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -21,6 +29,39 @@ namespace Iconrrousel.Main
             
             main.Show();
 
+
+            _trayIcon = new NotifyIcon
+            {
+                Icon = new System.Drawing.Icon("..\\..\\Resources\\icon.ico"),
+                Visible = true,
+                Text = "Iconroussel"
+            };
+
+            _trayIcon.DoubleClick += (s, _) =>
+            {
+                Current.MainWindow.Show();
+                Current.MainWindow.WindowState = WindowState.Normal;
+                Current.MainWindow.Activate();
+            };
+
+            var menu = new ContextMenuStrip();
+            menu.Items.Add("Configuración", null, OpenSettings);
+            menu.Items.Add("Salir", null, (_, __) => Shutdown());
+
+            _trayIcon.ContextMenuStrip = menu;
+
+        }
+
+        private void OpenSettings(object sender, EventArgs e)
+        {
+            if (_settingsWindow == null || !_settingsWindow.IsLoaded)
+            {
+                _settingsWindow = new SettingsWindow();
+                _settingsWindow.Closed += (_, __) => _settingsWindow = null;
+            }
+
+            _settingsWindow.Show();
+            _settingsWindow.Activate();
         }
 
         public static SharedData Data { get; } = new SharedData();

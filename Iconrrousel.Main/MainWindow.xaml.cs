@@ -1,33 +1,21 @@
-﻿using Iconrrousel.Main.Properties;
-using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Shell;
+﻿using Microsoft.WindowsAPICodePack.Shell;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml;
+using Application = System.Windows.Application;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
-using Point = System.Windows.Point;
 
 
 namespace Iconrrousel.Main
@@ -37,7 +25,6 @@ namespace Iconrrousel.Main
     /// </summary>
     public partial class MainWindow : Window
     {
-
         #region DragMoveWindow
         [DllImport("user32.dll")]
         static extern bool ReleaseCapture();
@@ -84,6 +71,8 @@ namespace Iconrrousel.Main
             InitializeComponent();
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
+            App.IconService.OnDeleteAllIcons += DeleteAllIcons;
+
 
             this.AllowDrop = true;
 
@@ -103,13 +92,13 @@ namespace Iconrrousel.Main
 
             /// TO-DO:
             /// UN SCROLL MAS SUAVE
-            /// UNA PANTALLA DE CONFIGURACION: , paleta de colores, resize de la ventana (+iconos),
+            /// UNA PANTALLA DE CONFIGURACION:  resize de la ventana (+iconos),
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            /// ESTO HAY QUE VER SI SE PUEDE CONFIGURAR EN LA PANTALLA Y COMO SE ACTUALIZA EL CAMBIO
             int monitorIndex = 1;
-            /// HACERLO CONFIGURABLE, MOSTRAR EN SETTINGS UN CONTADOR CON EL NUMERO DE MONITORES DETECTADOS
             var screens = System.Windows.Forms.Screen.AllScreens;
 
             if (monitorIndex < screens.Length)
@@ -282,20 +271,13 @@ namespace Iconrrousel.Main
             IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset + UIConfiguration.ScrollButtons.ScrollOffset);
         }
 
-        private void OpenWindow_Click(object sender, RoutedEventArgs e)
-        {
-            var settWin = new SettingsWindow(this);
-            settWin.Owner = this;
-            settWin.Show();
-        }
-
-        public void ClearAllIcons()
+        private void DeleteAllIcons()
         {
             _paths.Clear();
             updateJson();
             updatePanel();
         }
-
+       
         
     }
 
