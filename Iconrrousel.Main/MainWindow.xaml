@@ -11,6 +11,7 @@
     MinWidth="150"
     MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}"
     SizeToContent="Width"
+    ShowInTaskbar="False"
     ResizeMode="NoResize"
     Loaded="Window_Loaded"
     WindowStartupLocation="Manual"

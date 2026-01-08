@@ -71,6 +71,7 @@ namespace Iconrrousel.Main
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
             App.IconService.OnDeleteAllIcons += DeleteAllIcons;
             Closed += MainWindow_Closed;
+            SizeChanged += MainWindow_SizeChanged;
 
             this.AllowDrop = true;
 
@@ -87,6 +88,14 @@ namespace Iconrrousel.Main
             }
         }
 
+        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (IsLoaded)
+            {
+                CenterWindowOnTopOfScreen();
+            }
+        }
+
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             App.IconService.OnDeleteAllIcons -= DeleteAllIcons;
@@ -95,23 +104,21 @@ namespace Iconrrousel.Main
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            int monitorIndex = 0;
+            CenterWindowOnTopOfScreen();
+        }
+
+        private void CenterWindowOnTopOfScreen()
+        {
             var screens = System.Windows.Forms.Screen.AllScreens;
+            var screen = screens.Length > 1 ? screens[1] : System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(this).Handle);
+            UpdateLayout();
 
-            if (screens.Length > 1 && monitorIndex < screens.Length)
-            {
-                monitorIndex = 1;
-            }
+            double screenWidth = screen.WorkingArea.Width;
+            double screenLeft = screen.WorkingArea.Left;
+            double screenTop = screen.WorkingArea.Top;
 
-            if (monitorIndex < screens.Length)
-            {
-                double screenWidth = screens[monitorIndex].WorkingArea.Width;
-                double screenLeft = screens[monitorIndex].WorkingArea.Left;
-                double screenTop = screens[monitorIndex].WorkingArea.Top;
-
-                Left = screenLeft + (screenWidth - ActualWidth) / 2;
-                Top = screenTop;
-            }
+            Left = screenLeft + (screenWidth - ActualWidth) / 2;
+            Top = screenTop;
         }
 
         private UIElement getButton(string item)
@@ -278,6 +285,7 @@ namespace Iconrrousel.Main
             updatePaths(filesDropped);
             updateJson();
             updatePanel();
+            CenterWindowOnTopOfScreen();
         }
 
         private void updatePanel()
@@ -288,6 +296,7 @@ namespace Iconrrousel.Main
             {
                 IconsPanel.Children.Add(getButton(path));
             }
+            CenterWindowOnTopOfScreen();
         }
 
         public void updateJson()
