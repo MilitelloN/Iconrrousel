@@ -156,7 +156,6 @@ namespace Iconrrousel.Main
             var nameBlock = new TextBlock
             {
                 Text = System.IO.Path.GetFileNameWithoutExtension(item),
-                Foreground = Brushes.White,
                 FontSize = 11,
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
@@ -165,6 +164,8 @@ namespace Iconrrousel.Main
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 4, 0, 0)
             };
+            nameBlock.SetBinding(TextBlock.ForegroundProperty, new Binding("IconTextForeground") { Source = App.Data });
+
             var visibilityBinding = new Binding("ShowIconNames")
             {
                 Source = App.Data,

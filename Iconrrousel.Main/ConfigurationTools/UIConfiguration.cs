@@ -98,6 +98,8 @@ namespace Iconrrousel.Main
             public static readonly SolidColorBrush BorderBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0x00, 0x00, 0x00));
             public static readonly Color ShadowColor = Colors.Black;
 
+            public static readonly SolidColorBrush IconTextForegroundBrush = Brushes.White;
+
             static ThemeColors()
             {
                 ScrollButtonBackgroundBrush.Freeze();
@@ -109,6 +111,7 @@ namespace Iconrrousel.Main
                 TopButtonPressedBrush.Freeze();
                 TopButtonForegroundBrush.Freeze();
                 BorderBackgroundBrush.Freeze();
+                IconTextForegroundBrush.Freeze();
             }
         }
     }

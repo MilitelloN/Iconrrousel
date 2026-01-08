@@ -46,6 +46,7 @@ namespace Iconrrousel.Main
 
         private Brush _borderBackground = UIConfiguration.ThemeColors.BorderBackgroundBrush;
         private Color _shadowColor = UIConfiguration.ThemeColors.ShadowColor;
+        private Brush _iconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
 
         public bool ShowIconNames
         {
@@ -119,6 +120,12 @@ namespace Iconrrousel.Main
             set => Set(ref _shadowColor, value);
         }
 
+        public Brush IconTextForeground
+        {
+            get => _iconTextForeground;
+            set => Set(ref _iconTextForeground, value);
+        }
+
         protected void Set<T>(ref T field, T value,
         [System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
@@ -158,7 +165,6 @@ namespace Iconrrousel.Main
 
         private void ApplyTheme(SettingsFields.ThemeOption theme)
         {
-            // Paletas modernas y minimalistas
             switch (theme)
             {
                 case SettingsFields.ThemeOption.Light:
@@ -174,6 +180,7 @@ namespace Iconrrousel.Main
 
                     BorderBackground = new SolidColorBrush(Color.FromArgb(0xF2, 0xFF, 0xFF, 0xFF));
                     ShadowColor = Color.FromArgb(0x33, 0x00, 0x00, 0x00);
+                    IconTextForeground = new SolidColorBrush(Color.FromRgb(0x22, 0x22, 0x22));
                     break;
 
                 case SettingsFields.ThemeOption.Beige:
@@ -189,6 +196,7 @@ namespace Iconrrousel.Main
 
                     BorderBackground = new SolidColorBrush(Color.FromArgb(0xF0, 0xF4, 0xEF, 0xE5));
                     ShadowColor = Color.FromArgb(0x44, 0x3A, 0x2C, 0x19);
+                    IconTextForeground = new SolidColorBrush(Color.FromRgb(0x2E, 0x1F, 0x0B));
                     break;
 
                 case SettingsFields.ThemeOption.Blue:
@@ -204,6 +212,7 @@ namespace Iconrrousel.Main
 
                     BorderBackground = new SolidColorBrush(Color.FromArgb(0xE0, 0x10, 0x2A, 0x4F));
                     ShadowColor = Color.FromArgb(0x55, 0x10, 0x2A, 0x4F);
+                    IconTextForeground = Brushes.White;
                     break;
 
                 case SettingsFields.ThemeOption.Pink:
@@ -219,6 +228,7 @@ namespace Iconrrousel.Main
 
                     BorderBackground = new SolidColorBrush(Color.FromArgb(0xE6, 0xF5, 0xE1, 0xEC));
                     ShadowColor = Color.FromArgb(0x55, 0xA8, 0x65, 0x8B);
+                    IconTextForeground = new SolidColorBrush(Color.FromRgb(0x3A, 0x1C, 0x2C));
                     break;
 
                 case SettingsFields.ThemeOption.Red:
@@ -234,6 +244,7 @@ namespace Iconrrousel.Main
 
                     BorderBackground = new SolidColorBrush(Color.FromArgb(0xE6, 0x40, 0x12, 0x12));
                     ShadowColor = Color.FromArgb(0x55, 0x40, 0x12, 0x12);
+                    IconTextForeground = Brushes.White;
                     break;
 
                 case SettingsFields.ThemeOption.Dark:
@@ -250,6 +261,7 @@ namespace Iconrrousel.Main
 
                     BorderBackground = UIConfiguration.ThemeColors.BorderBackgroundBrush;
                     ShadowColor = UIConfiguration.ThemeColors.ShadowColor;
+                    IconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
                     break;
             }
         }
