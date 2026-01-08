@@ -71,7 +71,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Configuration\UIConfiguration.cs" />
+    <Compile Include="ConfigurationTools\SettingsFields.cs" />
+    <Compile Include="ConfigurationTools\UIConfiguration.cs" />
     <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

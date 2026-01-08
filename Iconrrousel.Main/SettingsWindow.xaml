@@ -34,10 +34,10 @@
         <GroupBox Header="Icon size" Grid.Row="1" Margin="0,0,0,6" MaxWidth="250">
             <StackPanel>
                 <TextBlock Text="Choose the size of the program" Margin="0,0,0,6" TextWrapping="Wrap" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <RadioButton Content="Small" GroupName="IconSizeGrp" Margin="0,0,8,0" />
-                    <RadioButton Content="Medium" GroupName="IconSizeGrp" Margin="0,0,8,0" />
-                    <RadioButton Content="Large" GroupName="IconSizeGrp" />
+                <StackPanel x:Name="RadioStack" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <RadioButton Content="Small" GroupName="IconSizeGrp" Margin="0,0,8,0" Tag="Small"/>
+                    <RadioButton Content="Medium" GroupName="IconSizeGrp" Margin="0,0,8,0" Tag="Medium" IsChecked="True" />
+                    <RadioButton Content="Large" GroupName="IconSizeGrp" Tag="Large"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>

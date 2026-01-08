@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Iconrrousel.Main.Configuration;
+using Iconrrousel.Main.Properties;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -37,9 +41,10 @@ namespace Iconrrousel.Main
         public event PropertyChangedEventHandler PropertyChanged;
 
         public readonly string _CONFIG_FILE = "Settings.json";
-        
+
+        public static SettingsFields _settings;
         private bool _showIconNames;
-        private bool _darkTheme;
+        private int _themeSelected;
 
         public bool ShowIconNames
         {
@@ -47,10 +52,10 @@ namespace Iconrrousel.Main
             set => Set(ref _showIconNames, value);
         }
 
-        public bool DarkTheme
+        public int ThemeSelected
         {
-            get => _darkTheme;
-            set => Set(ref _darkTheme, value);
+            get => _themeSelected;
+            set => Set(ref _themeSelected, value);
         }
 
         protected void Set<T>(ref T field, T value,
@@ -61,6 +66,51 @@ namespace Iconrrousel.Main
                 field = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             }
+        }
+
+        public SettingsFields LoadSettings()
+        {
+            if (File.Exists(_CONFIG_FILE))
+            {
+                var json = File.ReadAllText(_CONFIG_FILE);
+                _settings = JsonConvert.DeserializeObject<SettingsFields>(json);
+            }
+            else
+            {
+                _settings = new SettingsFields();
+                string json = JsonConvert.SerializeObject(_settings, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText(App.Data._CONFIG_FILE, json);
+            }
+            return _settings;
+        }
+
+        public void SaveSettings(SettingsFields settings)
+        {
+            string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(_CONFIG_FILE, json);
+            _settings = settings;
+            SetStartup(settings._startup);
+
+        }
+
+        public void SetStartup(bool enable)
+        {
+            const string appName = "Iconroussel";
+            string exePath = Assembly.GetExecutingAssembly().Location;
+
+            using (var key = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", true))
+            {
+                if (enable)
+                    key.SetValue(appName, exePath);
+                else
+                    key.DeleteValue(appName, false);
+            }
+        }
+
+        public SettingsFields GetSettings()
+        {
+            return _settings;
         }
     }
 }

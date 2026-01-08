@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Iconrrousel.Main.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
@@ -25,26 +27,25 @@ namespace Iconrrousel.Main
     {
         private readonly MainWindow _main;
 
-        Dictionary<string, object> settings = new Dictionary<string, object>();
         public SettingsWindow(MainWindow main)
         {
             DataContext = App.Data;
             InitializeComponent();
             _main = main;
+            SettingsFields settings = App.Data.LoadSettings();
+            ApplySettings(settings);
 
-            if (File.Exists(App.Data._CONFIG_FILE))
-            {
-                var json = File.ReadAllText(App.Data._CONFIG_FILE);
-                settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-            }
-            LoadSettings();
         }
 
-        private void LoadSettings()
+        private void ApplySettings(SettingsFields settings)
         {
-            StartUpCbox.IsChecked = settings.ContainsKey("Startup") ? (bool)settings["Startup"] : false;
-            NamesCbox.IsChecked = settings.ContainsKey("DisplayNames") ? (bool)settings["DisplayNames"] : false;
-            App.Data.ShowIconNames = NamesCbox.IsChecked ?? false;
+            StartUpCbox.IsChecked = settings._startup;
+            NamesCbox.IsChecked = settings._displayNames;
+            var radButton = RadioStack.Children
+                .OfType<System.Windows.Controls.RadioButton>()
+                .FirstOrDefault(r => r.Tag.ToString() == settings._iconSizeOption.ToString())
+                .IsChecked = true;
+            ThemeCombo.SelectedIndex = (int)settings._themeOption;
         }
 
         private void DeleteAllIcons_Click(object sender, RoutedEventArgs e)
@@ -65,27 +66,42 @@ namespace Iconrrousel.Main
             {
                 this.Close();
             }
-            
+
         }
+
+        private int getIconSizeFromString(string size)
+        {
+            switch (size)
+            {
+                case "Small":
+                    return 0;
+                case "Medium":
+                default:
+                    return 1;
+                case "Large":
+                    return 2;
+            }
+        }
+
 
         private void SaveChanges()
         {
 
-            _main.SetStartup((bool)StartUpCbox.IsChecked);
-            App.Data.ShowIconNames = NamesCbox.IsChecked ?? false;
+            var selected = RadioStack.Children
+                .OfType<System.Windows.Controls.RadioButton>()
+                .FirstOrDefault(r => r.IsChecked == true);
 
-            if (settings.ContainsKey("Startup"))
-                settings["Startup"] = (bool)StartUpCbox.IsChecked;
-            else
-                settings.Add("Startup", (bool)StartUpCbox.IsChecked);
+            if (selected != null)
+            {
+                string value = selected.Tag.ToString(); // Small / Medium / Large
+            }
 
-            if (settings.ContainsKey("DisplayNames"))
-                settings["DisplayNames"] = App.Data.ShowIconNames;
-            else
-                settings.Add("DisplayNames", App.Data.ShowIconNames);
+            SettingsFields settings = new SettingsFields((bool)StartUpCbox.IsChecked, 
+                (bool)NamesCbox.IsChecked, 
+                (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex, 
+                (SettingsFields.IconSizeOption)getIconSizeFromString(selected.Tag.ToString()));
 
-            string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(App.Data._CONFIG_FILE, json);
+            App.Data.SaveSettings(settings);          
             this.Close();
         }
 
@@ -106,8 +122,6 @@ namespace Iconrrousel.Main
             {
                 this.Close();
             }
-            
-            
         }
 
         private void CloseApp_Click(object sender, RoutedEventArgs e)
@@ -115,9 +129,5 @@ namespace Iconrrousel.Main
             System.Windows.Application.Current.Shutdown();
         }
 
-        private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
     }
 }

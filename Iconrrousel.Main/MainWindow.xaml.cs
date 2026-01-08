@@ -79,12 +79,9 @@ namespace Iconrrousel.Main
         public MainWindow()
         {
             DataContext = App.Data;
-            ApplySettings();
+            App.Data.LoadSettings();
 
             InitializeComponent();
-
-
-
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
 
@@ -127,17 +124,6 @@ namespace Iconrrousel.Main
 
             Left = screenLeft + (screenWidth - ActualWidth) / 2;
             Top = screenTop;
-        }
-
-        private void ApplySettings()
-        {
-            if (File.Exists(App.Data._CONFIG_FILE))
-            {
-                var json = File.ReadAllText(App.Data._CONFIG_FILE);
-                Dictionary<string, object> settings = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                App.Data.ShowIconNames = settings.ContainsKey("DisplayNames") ? (bool)settings["DisplayNames"] : false;
-                App.Data.DarkTheme = settings.ContainsKey("DarkTheme") ? (bool)settings["DarkTheme"] : false;
-            }
         }
 
         private UIElement getButton(string item)
@@ -307,23 +293,9 @@ namespace Iconrrousel.Main
             _paths.Clear();
             updateJson();
             updatePanel();
-
         }
 
-        public void SetStartup(bool enable)
-        {
-            const string appName = "Iconroussel";
-            string exePath = Assembly.GetExecutingAssembly().Location;
-
-            using (var key = Registry.CurrentUser.OpenSubKey(
-                @"Software\Microsoft\Windows\CurrentVersion\Run", true))
-            {
-                if (enable)
-                    key.SetValue(appName, exePath);
-                else
-                    key.DeleteValue(appName, false);
-            }
-        }
+        
     }
 
 
