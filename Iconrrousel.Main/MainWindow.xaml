@@ -14,6 +14,7 @@
     SizeToContent="Width"
     ShowInTaskbar="False"
     ResizeMode="NoResize"
+    Focusable="False"
     Loaded="Window_Loaded"
     WindowStartupLocation="Manual"
     AllowDrop="True"
