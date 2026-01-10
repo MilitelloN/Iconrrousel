@@ -238,16 +238,12 @@ namespace Iconrrousel.Main
 
                 var bttn = new Button
                 {
-                    Background = Brushes.Transparent,
-                    BorderBrush = Brushes.Transparent,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Padding = new Thickness(4, 4, 4, 6),
+                    Style = (Style)FindResource("IconButtonStyle"),
+                    Content = panel,
+                    Tag = item,
                     Margin = UIConfiguration.Icon.ButtonMargin,
                     MinWidth = UIConfiguration.Icon.ButtonWidth,
-                    MinHeight = UIConfiguration.Icon.ButtonHeight,
-                    Content = panel,
-                    Tag = item
+                    MinHeight = UIConfiguration.Icon.ButtonHeight
                 };
 
                 bttn.Click += IconButton_Click;
