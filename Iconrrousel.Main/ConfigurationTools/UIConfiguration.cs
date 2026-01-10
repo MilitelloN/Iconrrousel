@@ -72,14 +72,14 @@ namespace Iconrrousel.Main
         public static class Icon
         {
             public const double ButtonWidth = 90;
-            public const double ButtonHeight = 120;
+            public const double ButtonHeight = 100;
             public const double ImageWidth = 64;
             public const double ImageHeight = 64;
             public const double ImageWidthWithLabel = 54;
             public const double ImageHeightWithLabel = 54;
             
             // Margins
-            public static readonly Thickness ButtonMargin = new Thickness(4, 4, 4, 4);
+            public static readonly Thickness ButtonMargin = new Thickness(4, 0, 4, 0);
         }
 
         // Theme Colors Configuration
