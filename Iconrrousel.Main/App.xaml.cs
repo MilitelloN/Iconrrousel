@@ -373,9 +373,9 @@ namespace Iconrrousel.Main
                 switch (theme)
                 {
                     case SettingsFields.ThemeOption.Light:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x22, 0x00, 0x00, 0x00));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x33, 0x00, 0x00, 0x00));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x55, 0x00, 0x00, 0x00));
+                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x00, 0x00, 0x00));
+                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x11, 0x11, 0x11));
+                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x33, 0x33, 0x33));
                         ScrollButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x22, 0x22, 0x22));
 
                         TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x2A, 0x00, 0x00, 0x00));
@@ -390,9 +390,9 @@ namespace Iconrrousel.Main
                         break;
 
                     case SettingsFields.ThemeOption.Beige:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x26, 0x4A, 0x39, 0x23));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x33, 0x5A, 0x45, 0x28));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x4D, 0x6A, 0x50, 0x2D));
+                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x4A, 0x39, 0x23));
+                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x5A, 0x45, 0x28));
+                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x6A, 0x50, 0x2D));
                         ScrollButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x2E, 0x1F, 0x0B));
 
                         TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x30, 0x68, 0x55, 0x3B));
@@ -407,9 +407,9 @@ namespace Iconrrousel.Main
                         break;
 
                     case SettingsFields.ThemeOption.Blue:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x22, 0x6B, 0xB6, 0xFF));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x35, 0x5A, 0xA7, 0xE8));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x55, 0x4A, 0x94, 0xD1));
+                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x6B, 0xB6, 0xFF));
+                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x5A, 0xA7, 0xE8));
+                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x4A, 0x94, 0xD1));
                         ScrollButtonForeground = Brushes.White;
 
                         TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x2E, 0x4A, 0x90, 0xC8));
@@ -424,9 +424,9 @@ namespace Iconrrousel.Main
                         break;
 
                     case SettingsFields.ThemeOption.Pink:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x22, 0xF5, 0xC1, 0xE8));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x35, 0xEC, 0xB0, 0xDC));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x55, 0xD9, 0x97, 0xC8));
+                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xF5, 0xC1, 0xE8));
+                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xEC, 0xB0, 0xDC));
+                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xD9, 0x97, 0xC8));
                         ScrollButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x3A, 0x1C, 0x2C));
 
                         TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x30, 0xEA, 0xB5, 0xE1));
@@ -441,9 +441,9 @@ namespace Iconrrousel.Main
                         break;
 
                     case SettingsFields.ThemeOption.Red:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x22, 0xFF, 0x6B, 0x6B));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x35, 0xE8, 0x58, 0x58));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x55, 0xD1, 0x48, 0x48));
+                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xFF, 0x6B, 0x6B));
+                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xE8, 0x58, 0x58));
+                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xD1, 0x48, 0x48));
                         ScrollButtonForeground = Brushes.White;
 
                         TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x2E, 0xC7, 0x3D, 0x3D));

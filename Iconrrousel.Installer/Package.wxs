@@ -1,10 +1,12 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-	<Package Id="NMilitello.Iconrrousel.Installer" Name="Iconrrousel" Manufacturer="NMilitello" Version="1.0.0.0">
+	<Package Id="NMilitello.Iconrrousel.Installer" Name="Iconrrousel" Manufacturer="NMilitello" Version="1.0.0.0" Compressed="yes" InstallerVersion="500"> 
 		<MajorUpgrade DowngradeErrorMessage="The version you are trying to install is lower than the current version" />
-
+		<MediaTemplate EmbedCab="yes" />
 		<Feature Id="Main">
 			<ComponentGroupRef Id="FilesCmp" />
 		</Feature>
+		<Icon Id="IconId" SourceFile="..\Iconrrousel.Main\Resources\Icono.ico" />
+		<Property Id="ARPPRODUCTICON" Value="IconId" />
 
 		<StandardDirectory Id="ProgramFiles64Folder">
 			<Directory Id="INSTALLFOLDER" Name="Iconrrousel"/>

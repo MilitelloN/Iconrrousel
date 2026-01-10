@@ -9,7 +9,7 @@ namespace Iconrrousel.Main
         public static class Window
         {
             public const double DefaultWidth = 320;
-            public const double DefaultHeight = 190;
+            public const double DefaultHeight = 140;
             public const double MinWidth = 320;
         }
 
@@ -51,10 +51,10 @@ namespace Iconrrousel.Main
             public const string LeftIcon = "?";
             public const string RightIcon = "?";
             
-            // Colors
-            public static readonly Color BackgroundColor = Color.FromArgb(0x20, 0xFF, 0xFF, 0xFF);
-            public static readonly Color HoverColor = Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF);
-            public static readonly Color PressedColor = Color.FromArgb(0x60, 0xFF, 0xFF, 0xFF);
+            // Colors (opaque gray for dark theme)
+            public static readonly Color BackgroundColor = Color.FromArgb(0xFF, 0x55, 0x55, 0x55);
+            public static readonly Color HoverColor = Color.FromArgb(0xFF, 0x66, 0x66, 0x66);
+            public static readonly Color PressedColor = Color.FromArgb(0xFF, 0x77, 0x77, 0x77);
             
             // Scroll Amount
             public const double ScrollOffset = 200;
@@ -71,23 +71,23 @@ namespace Iconrrousel.Main
         // Individual Icon Configuration
         public static class Icon
         {
-            public const double ButtonWidth = 70;
-            public const double ButtonHeight = 90;
+            public const double ButtonWidth = 90;
+            public const double ButtonHeight = 120;
             public const double ImageWidth = 64;
             public const double ImageHeight = 64;
             public const double ImageWidthWithLabel = 54;
             public const double ImageHeightWithLabel = 54;
             
             // Margins
-            public static readonly Thickness ButtonMargin = new Thickness(10, 6, 10, 6);
+            public static readonly Thickness ButtonMargin = new Thickness(4, 4, 4, 4);
         }
 
         // Theme Colors Configuration
         public static class ThemeColors
         {
-            public static readonly SolidColorBrush ScrollButtonBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
-            public static readonly SolidColorBrush ScrollButtonHoverBrush = new SolidColorBrush(Color.FromArgb(0x38, 0xFF, 0xFF, 0xFF));
-            public static readonly SolidColorBrush ScrollButtonPressedBrush = new SolidColorBrush(Color.FromArgb(0x52, 0xFF, 0xFF, 0xFF));
+            public static readonly SolidColorBrush ScrollButtonBackgroundBrush = new SolidColorBrush(ScrollButtons.BackgroundColor);
+            public static readonly SolidColorBrush ScrollButtonHoverBrush = new SolidColorBrush(ScrollButtons.HoverColor);
+            public static readonly SolidColorBrush ScrollButtonPressedBrush = new SolidColorBrush(ScrollButtons.PressedColor);
             public static readonly SolidColorBrush ScrollButtonForegroundBrush = Brushes.White;
 
             public static readonly SolidColorBrush TopButtonBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
