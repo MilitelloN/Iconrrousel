@@ -21,6 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MessageBox = System.Windows.Forms.MessageBox;
+using Path = System.IO.Path;
 
 namespace Iconrrousel.Main
 {
@@ -34,6 +35,7 @@ namespace Iconrrousel.Main
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
+            LoggingConfig.EnsureConfigured();
             var baseMsg = $"[{DateTime.Now:O}] SettingsWindow.{caller}: {message}";
             if (ex != null)
             {
@@ -191,8 +193,9 @@ namespace Iconrrousel.Main
             Log("Saving settings to disk");
             try
             {
+
                 string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText(_CONFIG_FILE, json);
+                File.WriteAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE), json);
                 _settings = settings;
                 SetStartup(settings._startup);
             }
@@ -236,4 +239,5 @@ namespace Iconrrousel.Main
             Log("Theme selection changed");
         }
     }
+
 }

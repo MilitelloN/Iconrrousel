@@ -23,6 +23,11 @@ namespace Iconrrousel.Main
         private SettingsWindow _settingsWindow;
         public static IIconService IconService { get; } = new IconService();
 
+        private void EnsureLogging()
+        {
+            LoggingConfig.EnsureConfigured();
+        }
+
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
             var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
@@ -35,6 +40,7 @@ namespace Iconrrousel.Main
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            EnsureLogging();
             Log("Starting application");
             try
             {
@@ -43,10 +49,9 @@ namespace Iconrrousel.Main
                 var main = new MainWindow();
                 main.Show();
 
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string iconPath = Path.Combine(baseDir, "icon.ico");
+                string iconPath = Path.Combine(App.Data.baseDir, "Resources\\icono.ico");
 
-                _trayIconImage = new System.Drawing.Icon(Path.Combine(baseDir,iconPath));
+                _trayIconImage = new System.Drawing.Icon(Path.Combine(App.Data.baseDir, iconPath));
                 _trayIcon = new NotifyIcon
                 {
                     Icon = _trayIconImage,
@@ -131,9 +136,44 @@ namespace Iconrrousel.Main
         public static SharedData Data { get; } = new SharedData();
     }
 
+    public static class LoggingConfig
+    {
+        private static bool _configured;
+        private static readonly object _lock = new object();
+
+        public static void EnsureConfigured()
+        {
+            if (_configured) return;
+
+            lock (_lock)
+            {
+                if (_configured) return;
+                try
+                {
+                    Trace.AutoFlush = true;
+                    const string source = "Iconrousel";
+                    const string logName = "Application";
+
+                    if (!EventLog.SourceExists(source))
+                    {
+                        EventLog.CreateEventSource(source, logName);
+                    }
+
+                    Trace.Listeners.Add(new EventLogTraceListener(source));
+                    _configured = true;
+                }
+                catch
+                {
+                    // do not throw if event log configuration fails
+                }
+            }
+        }
+    }
+
     public class SharedData : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
         public readonly static string _CONFIG_FILE = "Settings.json";
         private bool _showIconNames;
@@ -278,16 +318,16 @@ namespace Iconrrousel.Main
             SettingsFields settings;
             try
             {
-                if (File.Exists(_CONFIG_FILE))
+                if (File.Exists(Path.Combine(AppPaths.DataDir, _CONFIG_FILE)))
                 {
-                    var json = File.ReadAllText(_CONFIG_FILE);
+                    var json = File.ReadAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE));
                     settings = JsonConvert.DeserializeObject<SettingsFields>(json);
                 }
                 else
                 {
                     settings = new SettingsFields();
                     string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-                    File.WriteAllText(_CONFIG_FILE, json);
+                    File.WriteAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE), json);
                 }
 
                 UpdateMainWindow(settings);
@@ -465,6 +505,19 @@ namespace Iconrrousel.Main
             {
                 Log("Error applying window size", ex: ex);
             }
+        }
+    }
+
+    public static class AppPaths
+    {
+        public static string DataDir { get; } =
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Iconrousel");
+
+        static AppPaths()
+        {
+            Directory.CreateDirectory(DataDir);
         }
     }
 }

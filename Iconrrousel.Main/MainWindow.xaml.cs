@@ -60,10 +60,11 @@ namespace Iconrrousel.Main
         #endregion
 
         List<string> _paths = new List<string>();
-        readonly string _PATHS_FILE = "Paths.json";
+        private string _PATHS_FILE = "Paths.json";
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
+            LoggingConfig.EnsureConfigured();
             var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
             if (ex != null)
             {
@@ -74,6 +75,7 @@ namespace Iconrrousel.Main
 
         private static void LogStatic(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
+            LoggingConfig.EnsureConfigured();
             var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
             if (ex != null)
             {
@@ -87,7 +89,6 @@ namespace Iconrrousel.Main
             Log("Initializing MainWindow");
             DataContext = App.Data;
             App.Data.LoadSettings();
-
             InitializeComponent();
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
@@ -97,11 +98,11 @@ namespace Iconrrousel.Main
 
             this.AllowDrop = true;
 
-            if (File.Exists(_PATHS_FILE))
+            if (File.Exists(Path.Combine(AppPaths.DataDir, _PATHS_FILE)))
             {
                 try
                 {
-                    var json = File.ReadAllText(_PATHS_FILE);
+                    var json = File.ReadAllText(Path.Combine(AppPaths.DataDir, _PATHS_FILE));
                     var items = JsonConvert.DeserializeObject<List<string>>(json);
 
                     foreach (var item in items)
@@ -431,7 +432,7 @@ namespace Iconrrousel.Main
             try
             {
                 string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText(_PATHS_FILE, json);
+                File.WriteAllText(Path.Combine(AppPaths.DataDir, _PATHS_FILE), json);
             }
             catch (Exception ex)
             {
