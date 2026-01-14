@@ -7,7 +7,7 @@
     <ProjectGuid>{0C2F585D-7D1E-4282-A30D-2A2889B6BD3A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Iconrrousel.Main</RootNamespace>
-    <AssemblyName>Iconrrousel.Main</AssemblyName>
+    <AssemblyName>Iconrrousel</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -40,7 +40,7 @@
     <StartupObject>Iconrrousel.Main.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icono.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Icono.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CustomMarshalers" />
@@ -78,7 +78,6 @@
     </ApplicationDefinition>
     <Compile Include="ConfigurationTools\SettingsFields.cs" />
     <Compile Include="ConfigurationTools\UIConfiguration.cs" />
-    <Resource Include="Icono.ico" />
     <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

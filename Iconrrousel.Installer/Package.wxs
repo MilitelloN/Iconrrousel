@@ -6,7 +6,9 @@
 			<ComponentGroupRef Id="FilesCmp" />
 		</Feature>
 		<Icon Id="IconId" SourceFile="..\Iconrrousel.Main\Resources\Icono.ico" />
+
 		<Property Id="ARPPRODUCTICON" Value="IconId" />
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
 		<StandardDirectory Id="ProgramFiles64Folder">
 			<Directory Id="INSTALLFOLDER" Name="Iconrrousel"/>
@@ -18,6 +20,6 @@
 			</Files>
 		</ComponentGroup>
 
-		<ui:WixUI Id="WixUI_Minimal" />
+		<ui:WixUI Id="WixUI_InstallDir" />
 	</Package>
 </Wix>

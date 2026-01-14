@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:Iconrrousel.Main"
     xmlns:conv="clr-namespace:Iconrrousel.Main.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Icon="/Icono.ico"
+    Icon="/Resources/Icono.ico"
     Title="Iconroussel"
     Height="140"
     MinWidth="150"
