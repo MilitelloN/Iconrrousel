@@ -77,7 +77,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ConfigurationTools\SettingsFields.cs" />
+    <Compile Include="ConfigurationTools\TimeRange.cs" />
     <Compile Include="ConfigurationTools\UIConfiguration.cs" />
+    <Compile Include="Services\TimeRangeService.cs" />
+    <Compile Include="TimeRangeDialog.xaml.cs">
+      <DependentUpon>TimeRangeDialog.xaml</DependentUpon>
+    </Compile>
     <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -100,6 +105,9 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="TimeRangeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -132,6 +140,9 @@
     <Content Include="Resources\Icono.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Documentation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

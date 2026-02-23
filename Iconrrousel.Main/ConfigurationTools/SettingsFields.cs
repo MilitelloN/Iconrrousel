@@ -30,6 +30,7 @@ namespace Iconrrousel.Main.Configuration
         public bool _startup { get; set; }
         public bool _displayNames { get; set; }
         public WindowSizeOption _windowSizeOption { get; set; }
+        public List<TimeRange> _timeRanges { get; set; }
 
         public SettingsFields()
         {
@@ -37,6 +38,7 @@ namespace Iconrrousel.Main.Configuration
             _displayNames = false;
             _themeOption = ThemeOption.Dark;
             _windowSizeOption = WindowSizeOption.Medium;
+            _timeRanges = new List<TimeRange>();
         }
 
         public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption)
@@ -45,11 +47,16 @@ namespace Iconrrousel.Main.Configuration
             _displayNames = displayNames;
             _themeOption = theme;
             _windowSizeOption = windowSizeOption;
+            _timeRanges = new List<TimeRange>();
         }
 
-
-
-
-        
+        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption, List<TimeRange> timeRanges)
+        {
+            _startup = startup;
+            _displayNames = displayNames;
+            _themeOption = theme;
+            _windowSizeOption = windowSizeOption;
+            _timeRanges = timeRanges ?? new List<TimeRange>();
+        }
     }
 }

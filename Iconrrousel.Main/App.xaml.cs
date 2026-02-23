@@ -1,6 +1,7 @@
 ﻿using Iconrrousel.Main.Configuration;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -341,6 +342,14 @@ namespace Iconrrousel.Main
             }
         }
 
+        private List<TimeRange> _timeRanges = new List<TimeRange>();
+
+        public List<TimeRange> TimeRanges
+        {
+            get => _timeRanges;
+            set => Set(ref _timeRanges, value);
+        }
+
         public void UpdateMainWindow(SettingsFields settings)
         {
             Log("Updating main window with settings");
@@ -349,8 +358,17 @@ namespace Iconrrousel.Main
                 ShowIconNames = settings._displayNames;
                 ThemeSelected = (int)settings._themeOption;
                 WindowSizeSelected = (int)settings._windowSizeOption;
+                TimeRanges = settings._timeRanges ?? new List<TimeRange>();
                 ApplyTheme(settings._themeOption);
                 ApplyWindowSize(settings._windowSizeOption);
+                
+                if (Application.Current.MainWindow is MainWindow mainWindow)
+                {
+                    if (mainWindow.TimeRangeService != null)
+                    {
+                        mainWindow.TimeRangeService.UpdateTimeRanges(TimeRanges);
+                    }
+                }
             }
             catch (Exception ex)
             {

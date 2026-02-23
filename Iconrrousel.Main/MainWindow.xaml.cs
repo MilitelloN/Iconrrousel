@@ -17,6 +17,7 @@ using System.Windows.Media.Imaging;
 using Application = System.Windows.Application;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
+using Iconrrousel.Main.Services;
 
 
 namespace Iconrrousel.Main
@@ -61,6 +62,7 @@ namespace Iconrrousel.Main
 
         List<string> _paths = new List<string>();
         private string _PATHS_FILE = "Paths.json";
+        public TimeRangeService TimeRangeService { get; private set; }
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
@@ -88,8 +90,14 @@ namespace Iconrrousel.Main
         {
             Log("Initializing MainWindow");
             DataContext = App.Data;
-            App.Data.LoadSettings();
+            var settings = App.Data.LoadSettings();
             InitializeComponent();
+
+            TimeRangeService = new TimeRangeService();
+            if (settings._timeRanges != null && settings._timeRanges.Count > 0)
+            {
+                TimeRangeService.UpdateTimeRanges(settings._timeRanges);
+            }
 
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
             App.IconService.OnDeleteAllIcons += DeleteAllIcons;
@@ -140,6 +148,7 @@ namespace Iconrrousel.Main
             try
             {
                 App.IconService.OnDeleteAllIcons -= DeleteAllIcons;
+                TimeRangeService?.Stop();
                 CleanupIconPanel();
             }
             catch (Exception ex)
@@ -272,11 +281,25 @@ namespace Iconrrousel.Main
             {
                 if (sender is Button btn && btn.Tag is string path)
                 {
-                    Process.Start(new ProcessStartInfo
+                    var timeRanges = App.Data.TimeRanges;
+                    var currentTime = DateTime.Now.TimeOfDay;
+                    bool executeAllowed = true;
+                    foreach (var timeRange in timeRanges)
                     {
-                        FileName = path,
-                        UseShellExecute = true
-                    });
+                        executeAllowed = executeAllowed && !timeRange.IsInRange(currentTime);
+                    }
+
+                    if (!executeAllowed)
+                        MessageBox.Show("HACETE UN CURSO CAPO. VOLVE CUANDO ESTES REALMENTE AL PEDO", "No es tiempo de jugar ahora", MessageBoxButton.OK);
+                    else
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = path,
+                            UseShellExecute = true
+                        });
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -322,7 +345,7 @@ namespace Iconrrousel.Main
                 }
 
                 bttn.Click -= IconButton_Click;
-                
+
                 if (bttn.Content is StackPanel panel)
                 {
                     foreach (var child in panel.Children)
@@ -339,7 +362,7 @@ namespace Iconrrousel.Main
                     }
                     panel.Children.Clear();
                 }
-                
+
                 bttn.Content = null;
                 bttn.Tag = null;
             }
@@ -409,7 +432,7 @@ namespace Iconrrousel.Main
             try
             {
                 CleanupIconPanel();
-                
+
                 foreach (var path in _paths)
                 {
                     IconsPanel.Children.Add(getButton(path));

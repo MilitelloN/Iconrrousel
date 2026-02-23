@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Iconrrousel.Main"
         mc:Ignorable="d"
-        Title="Settings" Height="384" Width="336"
+        Title="Settings" Height="550" Width="336"
         Background="{Binding BorderBackground, Source={x:Static local:App.Data}}">
     <Window.Resources>
         <Style x:Key="SettingsButton" TargetType="Button">
@@ -115,77 +115,92 @@
     </Window.Resources>
 
     <Border Background="{Binding BorderBackground, Source={x:Static local:App.Data}}" Padding="14" CornerRadius="10" BorderThickness="1">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <GroupBox Header="General" Grid.Row="0" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
-                <StackPanel>
-                    <CheckBox Content="Start with windows" x:Name="StartUpCbox" Margin="0,4" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
-                    <CheckBox Content="Display names" x:Name="NamesCbox" Margin="0,4" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
-                    <ComboBox x:Name="ThemeCombo" Width="180" Margin="0,4" HorizontalAlignment="Left" SelectedIndex="0"
-                              Style="{StaticResource ThemedComboBox}"
-                              Background="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"
-                              Foreground="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
-                              BorderBrush="{Binding TopButtonHover, Source={x:Static local:App.Data}}" SelectionChanged="ThemeCombo_SelectionChanged">
-                        <ComboBox.ItemContainerStyle>
-                            <Style TargetType="ComboBoxItem">
-                                <Setter Property="Background" Value="{Binding TopButtonBackground, Source={x:Static local:App.Data}}" />
-                                <Setter Property="Foreground" Value="{Binding ComboItemForeground, Source={x:Static local:App.Data}}" />
-                                <Setter Property="Padding" Value="7,5" />
-                                <Setter Property="BorderThickness" Value="0" />
-                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ComboBoxItem">
-                                            <Border x:Name="itemBorder" Background="{TemplateBinding Background}" Padding="7,5" CornerRadius="5">
-                                                <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}" />
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsHighlighted" Value="True">
-                                                    <Setter TargetName="itemBorder" Property="Background" Value="{Binding TopButtonHover, Source={x:Static local:App.Data}}" />
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="itemBorder" Property="Background" Value="{Binding TopButtonPressed, Source={x:Static local:App.Data}}" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ComboBox.ItemContainerStyle>
-                        <ComboBoxItem Content="Dark theme" />
-                        <ComboBoxItem Content="Light theme" />
-                        <ComboBoxItem Content="Beige theme" />
-                        <ComboBoxItem Content="Blue theme" />
-                        <ComboBoxItem Content="Pink theme" />
-                        <ComboBoxItem Content="Red theme" />
-                    </ComboBox>
-                </StackPanel>
-            </GroupBox>
-
-            <GroupBox Header="Window size" Grid.Row="1" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
-                <StackPanel>
-                    <TextBlock Text="Choose the size of the program" Margin="0,0,0,7" TextWrapping="Wrap" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
-                    <StackPanel x:Name="RadioStack" Orientation="Horizontal" HorizontalAlignment="Left">
-                        <RadioButton Content="Small" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Small" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
-                        <RadioButton Content="Medium" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Medium" IsChecked="True" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
-                        <RadioButton Content="Large" GroupName="IconSizeGrp" Tag="Large" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                <GroupBox Header="General" Grid.Row="0" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
+                    <StackPanel>
+                        <CheckBox Content="Start with windows" x:Name="StartUpCbox" Margin="0,4" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                        <CheckBox Content="Display names" x:Name="NamesCbox" Margin="0,4" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                        <ComboBox x:Name="ThemeCombo" Width="180" Margin="0,4" HorizontalAlignment="Left" SelectedIndex="0"
+                                  Style="{StaticResource ThemedComboBox}"
+                                  Background="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"
+                                  Foreground="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
+                                  BorderBrush="{Binding TopButtonHover, Source={x:Static local:App.Data}}" SelectionChanged="ThemeCombo_SelectionChanged">
+                            <ComboBox.ItemContainerStyle>
+                                <Style TargetType="ComboBoxItem">
+                                    <Setter Property="Background" Value="{Binding TopButtonBackground, Source={x:Static local:App.Data}}" />
+                                    <Setter Property="Foreground" Value="{Binding ComboItemForeground, Source={x:Static local:App.Data}}" />
+                                    <Setter Property="Padding" Value="7,5" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBoxItem">
+                                                <Border x:Name="itemBorder" Background="{TemplateBinding Background}" Padding="7,5" CornerRadius="5">
+                                                    <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsHighlighted" Value="True">
+                                                        <Setter TargetName="itemBorder" Property="Background" Value="{Binding TopButtonHover, Source={x:Static local:App.Data}}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="itemBorder" Property="Background" Value="{Binding TopButtonPressed, Source={x:Static local:App.Data}}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ComboBox.ItemContainerStyle>
+                            <ComboBoxItem Content="Dark theme" />
+                            <ComboBoxItem Content="Light theme" />
+                            <ComboBoxItem Content="Beige theme" />
+                            <ComboBoxItem Content="Blue theme" />
+                            <ComboBoxItem Content="Pink theme" />
+                            <ComboBoxItem Content="Red theme" />
+                        </ComboBox>
                     </StackPanel>
-                </StackPanel>
-            </GroupBox>
+                </GroupBox>
 
-            <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0">
-                <Button Content="Delete all icons" Width="168" Height="34" Click="DeleteAllIcons_Click" Margin="0,0,0,7" Style="{StaticResource SettingsButton}" />
-                <Button Content="Save" Width="168" Height="34" Click="CloseWin_Click" Margin="0,0,0,7" Style="{StaticResource SettingsButton}" />
-                <Button Content="Close application" Width="168" Height="34" Click="CloseApp_Click" Style="{StaticResource SettingsButton}" />
-            </StackPanel>
-        </Grid>
+                <GroupBox Header="Window size" Grid.Row="1" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
+                    <StackPanel>
+                        <TextBlock Text="Choose the size of the program" Margin="0,0,0,7" TextWrapping="Wrap" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                        <StackPanel x:Name="RadioStack" Orientation="Horizontal" HorizontalAlignment="Left">
+                            <RadioButton Content="Small" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Small" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                            <RadioButton Content="Medium" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Medium" IsChecked="True" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                            <RadioButton Content="Large" GroupName="IconSizeGrp" Tag="Large" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Blocking time ranges" Grid.Row="2" Margin="0,0,0,7" MaxWidth="300" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" Background="Transparent">
+                    <StackPanel>
+                        <ListBox x:Name="TimeRangesListBox" Height="120" Margin="3,3,3,7" Background="{Binding TopButtonBackground, Source={x:Static local:App.Data}}" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" BorderThickness="0"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="Add Time Range" Width="120" Height="28" Click="AddTimeRange_Click" Margin="0,0,7,3" Style="{StaticResource SettingsButton}"/>
+                            <Button Content="Remove Selected" Width="120" Height="28" Click="RemoveTimeRange_Click" Margin="0,0,7,3" Style="{StaticResource SettingsButton}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <StackPanel Grid.Row="3" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,5,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,7">
+                        <Button Content="Delete all icons" Width="120" Height="34" Click="DeleteAllIcons_Click" Margin="0,0,7,0" Style="{StaticResource SettingsButton}" />
+                        <Button Content="Save" Width="120" Height="34" Click="CloseWin_Click" Style="{StaticResource SettingsButton}" />
+                    </StackPanel>
+                    <Button Content="Close application" Width="168" Height="34" Click="CloseApp_Click" Style="{StaticResource SettingsButton}" />
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Border>
 </Window>

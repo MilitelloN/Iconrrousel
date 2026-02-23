@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace Iconrrousel.Main
     {
         public readonly static string _CONFIG_FILE = "Settings.json";
         private SettingsFields _settings;
+        private ObservableCollection<TimeRange> _timeRanges;
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
@@ -48,7 +50,9 @@ namespace Iconrrousel.Main
         {
             Log("Initializing");
             DataContext = App.Data;
+            _timeRanges = new ObservableCollection<TimeRange>();
             InitializeComponent();
+            TimeRangesListBox.ItemsSource = _timeRanges;
             try
             {
                 SettingsFields settings = App.Data.LoadSettings();
@@ -72,10 +76,59 @@ namespace Iconrrousel.Main
                     .FirstOrDefault(r => r.Tag.ToString() == settings._windowSizeOption.ToString())
                     .IsChecked = true;
                 ThemeCombo.SelectedIndex = (int)settings._themeOption;
+
+                _timeRanges.Clear();
+                if (settings._timeRanges != null)
+                {
+                    foreach (var range in settings._timeRanges)
+                    {
+                        _timeRanges.Add(range);
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Log("Error applying settings", ex: ex);
+            }
+        }
+
+        private void AddTimeRange_Click(object sender, RoutedEventArgs e)
+        {
+            Log("Add time range clicked");
+            try
+            {
+                var dialog = new TimeRangeDialog();
+                dialog.Owner = this;
+                if (dialog.ShowDialog() == true && dialog.Result != null)
+                {
+                    _timeRanges.Add(dialog.Result);
+                    Log($"Time range added: {dialog.Result}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Error adding time range", ex: ex);
+            }
+        }
+
+        private void RemoveTimeRange_Click(object sender, RoutedEventArgs e)
+        {
+            Log("Remove time range clicked");
+            try
+            {
+                if (TimeRangesListBox.SelectedItem is TimeRange selected)
+                {
+                    _timeRanges.Remove(selected);
+                    Log($"Time range removed: {selected}");
+                }
+                else
+                {
+                    MessageBox.Show("Please select a time range to remove", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Error removing time range", ex: ex);
             }
         }
 
@@ -132,10 +185,12 @@ namespace Iconrrousel.Main
                     string value = selected.Tag.ToString(); // Small / Medium / Large
                 }
 
-                SettingsFields settings = new SettingsFields((bool)StartUpCbox.IsChecked,
+                SettingsFields settings = new SettingsFields(
+                    (bool)StartUpCbox.IsChecked,
                     (bool)NamesCbox.IsChecked,
                     (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex,
-                    (SettingsFields.WindowSizeOption)getWindowSizeFromString(selected.Tag.ToString()));
+                    (SettingsFields.WindowSizeOption)getWindowSizeFromString(selected.Tag.ToString()),
+                    _timeRanges.ToList());
 
                 SaveSettings(settings);
                 App.Data.UpdateMainWindow(settings);
@@ -162,10 +217,8 @@ namespace Iconrrousel.Main
                 {
                     SaveChanges();
                 }
-                else
-                {
-                    this.Close();
-                }
+                
+                this.Close();
             }
             catch (Exception ex)
             {
@@ -186,14 +239,11 @@ namespace Iconrrousel.Main
             }
         }
 
-
-
         public void SaveSettings(SettingsFields settings)
         {
             Log("Saving settings to disk");
             try
             {
-
                 string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
                 File.WriteAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE), json);
                 _settings = settings;
@@ -239,5 +289,4 @@ namespace Iconrrousel.Main
             Log("Theme selection changed");
         }
     }
-
 }
