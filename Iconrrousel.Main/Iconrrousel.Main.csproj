@@ -80,14 +80,14 @@
     <Compile Include="ConfigurationTools\TimeRange.cs" />
     <Compile Include="ConfigurationTools\UIConfiguration.cs" />
     <Compile Include="Services\TimeRangeService.cs" />
-    <Compile Include="TimeRangeDialog.xaml.cs">
+    <Compile Include="Views\TimeRangeDialog.xaml.cs">
       <DependentUpon>TimeRangeDialog.xaml</DependentUpon>
     </Compile>
-    <Page Include="SettingsWindow.xaml">
+    <Page Include="Views\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -96,16 +96,16 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters\ShowNamesToSizeConverter.cs" />
-    <Compile Include="IconExtractor.cs" />
-    <Compile Include="IconService.cs" />
-    <Compile Include="SettingsWindow.xaml.cs">
+    <Compile Include="Services\IconExtractor.cs" />
+    <Compile Include="Services\IconService.cs" />
+    <Compile Include="Views\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TimeRangeDialog.xaml">
+    <Page Include="Views\TimeRangeDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -137,12 +137,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="ProximosPasos.txt" />
     <Content Include="Resources\Icono.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Documentation\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
