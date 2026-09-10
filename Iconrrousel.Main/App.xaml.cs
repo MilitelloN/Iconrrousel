@@ -199,7 +199,6 @@ namespace Iconrrousel.Main
         private double _iconViewerWidth = 500;
         private int _visibleIconCount = 5;
         private double _filtrosButtonX = 40;
-        private double _expandirButtonX = 460;
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
@@ -329,12 +328,6 @@ namespace Iconrrousel.Main
         {
             get => _filtrosButtonX;
             set => Set(ref _filtrosButtonX, value);
-        }
-
-        public double ExpandirButtonX
-        {
-            get => _expandirButtonX;
-            set => Set(ref _expandirButtonX, value);
         }
 
         protected void Set<T>(ref T field, T value,
@@ -550,26 +543,22 @@ namespace Iconrrousel.Main
                         VisibleIconCount = 3;
                         WindowMaxWidth = 400;
                         FiltrosButtonX = 40;
-                        ExpandirButtonX = 320;
                         break;
                     case SettingsFields.WindowSizeOption.Large:
                         VisibleIconCount = 8;
                         WindowMaxWidth = 890;
                         FiltrosButtonX = 40;
-                        ExpandirButtonX = 810;
                         break;
                     case SettingsFields.WindowSizeOption.ExtraLarge:
                         VisibleIconCount = 10;
                         WindowMaxWidth = 1086;
                         FiltrosButtonX = 40;
-                        ExpandirButtonX = 1005;
                         break;
                     case SettingsFields.WindowSizeOption.Medium:
                     default:
                         VisibleIconCount = 5;
                         WindowMaxWidth = 596;
                         FiltrosButtonX = 40;
-                        ExpandirButtonX = 515;
                         break;
                 }
 

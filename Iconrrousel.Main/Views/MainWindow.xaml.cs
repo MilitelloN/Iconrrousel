@@ -317,6 +317,16 @@ namespace Iconrrousel.Main
             Log("Expandir clicked");
             try
             {
+                // El boton sigue siempre visible, pero si todos los iconos ya entran en
+                // 1 sola fila, expandir no cambiaria nada (misma cantidad de filas) - en
+                // ese caso no hace nada en vez de togglear el estado igual.
+                int visibleColumns = Math.Max(1, App.Data.VisibleIconCount);
+                if (!_expanded && _iconButtons.Count <= visibleColumns)
+                {
+                    Log("Expandir: no corresponde (todos los iconos entran en 1 fila)");
+                    return;
+                }
+
                 _expanded = !_expanded;
                 _pageIndex = 0;
                 ExpandirChevronRotation.Angle = _expanded ? 180 : 0;
@@ -388,7 +398,10 @@ namespace Iconrrousel.Main
                     Tag = item,
                     Margin = UIConfiguration.Icon.ButtonMargin,
                     MinWidth = UIConfiguration.Icon.ButtonWidth,
-                    MinHeight = UIConfiguration.Icon.ButtonHeight
+                    MinHeight = UIConfiguration.Icon.ButtonHeight,
+                    // El nombre debajo del icono se recorta con "..." (TextTrimming) para no
+                    // romper el layout - el tooltip muestra el nombre completo sin recortar.
+                    ToolTip = System.IO.Path.GetFileNameWithoutExtension(item)
                 };
 
                 bttn.Click += IconButton_Click;

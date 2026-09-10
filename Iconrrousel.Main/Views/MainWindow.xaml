@@ -189,9 +189,14 @@
             </Grid>
 
             <!-- Filtros / Expandir: flotan sobre los iconos (no ocupan espacio en el
-                 layout), posicionados por tamano de ventana (FiltrosButtonX /
-                 ExpandirButtonX) y siempre a la misma distancia del borde inferior
-                 (Canvas.Bottom fijo), sea la ventana colapsada o expandida. -->
+                 layout), siempre a la misma distancia del borde inferior (Canvas.Bottom
+                 fijo), sea la ventana colapsada o expandida. Filtros se ancla al borde
+                 IZQUIERDO (FiltrosButtonX, fijo por tamano de ventana) y Expandir al
+                 borde DERECHO (Canvas.Right fijo) en vez de un Canvas.Left por tamano:
+                 la ventana tiene ancho dinamico segun la cantidad de iconos guardados
+                 (ver UpdateIconLayout), asi que un Canvas.Left pensado para el ancho
+                 maximo del tamano elegido dejaba a Expandir fuera de la ventana (invisible)
+                 cuando el ancho real era menor. -->
             <Canvas Panel.ZIndex="2" IsHitTestVisible="True">
                 <Button x:Name="FiltrosButton"
                         Style="{StaticResource FloatingActionButtonStyle}"
@@ -210,7 +215,7 @@
                 </Button>
                 <Button x:Name="ExpandirButton"
                         Style="{StaticResource FloatingActionButtonStyle}"
-                        Canvas.Left="{Binding ExpandirButtonX, Source={x:Static local:App.Data}}"
+                        Canvas.Right="40"
                         Canvas.Bottom="5"
                         Click="ExpandirButton_Click"
                         ToolTip="Expandir">
