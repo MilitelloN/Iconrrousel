@@ -178,7 +178,8 @@
                         <StackPanel x:Name="RadioStack" Orientation="Horizontal" HorizontalAlignment="Left">
                             <RadioButton Content="Small" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Small" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
                             <RadioButton Content="Medium" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Medium" IsChecked="True" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
-                            <RadioButton Content="Large" GroupName="IconSizeGrp" Tag="Large" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                            <RadioButton Content="Large" GroupName="IconSizeGrp" Margin="0,0,10,0" Tag="Large" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
+                            <RadioButton Content="Extra Large" GroupName="IconSizeGrp" Tag="ExtraLarge" Foreground="{Binding IconTextForeground, Source={x:Static local:App.Data}}" />
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>

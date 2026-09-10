@@ -167,6 +167,8 @@ namespace Iconrrousel.Main
                     return 1;
                 case "Large":
                     return 2;
+                case "ExtraLarge":
+                    return 3;
             }
         }
 

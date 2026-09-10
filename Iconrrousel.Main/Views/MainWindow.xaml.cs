@@ -44,10 +44,16 @@ namespace Iconrrousel.Main
 
         private void Window_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // Si el click viene de un Button, Image, etc → NO mover ventana
-            if (e.OriginalSource is Button ||
-                e.OriginalSource is Image ||
-                e.OriginalSource is TextBlock)
+            // Si el click cae DENTRO de un Button (en cualquier parte de su
+            // Template - Border, Path, Image, TextBlock, etc.) -> NO mover
+            // ventana, dejar que el click le llegue al boton. Antes solo se
+            // chequeaba el tipo exacto de OriginalSource (Button/Image/
+            // TextBlock), lo que dejaba afuera botones con otro contenido
+            // (por ej. Filtros/Expandir, que usan un Path) - un click sobre
+            // el Path o el borde del circulo no matcheaba ninguno de esos
+            // tipos y terminaba disparando el drag de ventana, comiendose el
+            // click antes de que llegara al Button.Click.
+            if (e.OriginalSource is DependencyObject source && FindAncestorButton(source) != null)
                 return;
 
             ReleaseCapture();
@@ -58,10 +64,33 @@ namespace Iconrrousel.Main
                 0
             );
         }
+
+        private static Button FindAncestorButton(DependencyObject source)
+        {
+            while (source != null)
+            {
+                if (source is Button btn)
+                    return btn;
+
+                var parent = VisualTreeHelper.GetParent(source);
+                source = parent ?? LogicalTreeHelper.GetParent(source);
+            }
+            return null;
+        }
         #endregion
 
         List<string> _paths = new List<string>();
+        // Un Button persistente por icono, en el mismo orden que _paths. UpdateIconLayout
+        // decide cuales de estos entran en IconsPanel.Children (los de la pagina actual
+        // nomas, sea colapsado o expandido) - moverlos entre paneles no los destruye, asi
+        // que se reusan en vez de recrearlos en cada cambio de pagina.
+        private List<Button> _iconButtons = new List<Button>();
         private string _PATHS_FILE = "Paths.json";
+        private bool _expanded = false;
+        // Pagina actual (colapsado: 1 fila x VisibleIconCount iconos por pagina;
+        // expandido: hasta MaxExpandedRows x VisibleIconCount). Ya no hay scroll en
+        // pixeles: los botones ScrollLeft/ScrollRight solo cambian esta pagina.
+        private int _pageIndex = 0;
         public TimeRangeService TimeRangeService { get; private set; }
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
@@ -112,11 +141,12 @@ namespace Iconrrousel.Main
                 {
                     var json = File.ReadAllText(Path.Combine(AppPaths.DataDir, _PATHS_FILE));
                     var items = JsonConvert.DeserializeObject<List<string>>(json);
+                    items.Sort(CompareByDisplayName);
 
                     foreach (var item in items)
                     {
                         _paths.Add(item);
-                        IconsPanel.Children.Add(getButton(item));
+                        _iconButtons.Add((Button)getButton(item));
                     }
                 }
                 catch (Exception ex)
@@ -124,6 +154,8 @@ namespace Iconrrousel.Main
                     Log("Error loading paths file", ex: ex);
                 }
             }
+
+            UpdateIconLayout();
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -189,6 +221,110 @@ namespace Iconrrousel.Main
             catch (Exception ex)
             {
                 Log("Error centering window", ex: ex);
+            }
+        }
+
+        // Recalcula la tabla de iconos (UniformGrid) como PAGINAS: colapsada, 1
+        // fila x VisibleIconCount iconos por pagina; expandida, hasta
+        // MaxExpandedRows filas x VisibleIconCount columnas por pagina. No hay
+        // scroll en pixeles - ScrollLeft/Right (mas abajo) solo cambian
+        // _pageIndex y esto vuelve a pintar esa pagina desde cero (sin
+        // solapar ningun icono/columna con la pagina anterior).
+        //
+        // Solo la PRIMERA pagina (_pageIndex == 0) es "adaptable": si no hay
+        // suficientes iconos guardados para llenarla, la ventana se achica en
+        // vez de mostrar celdas vacias (alto si esta expandida, ancho si esta
+        // colapsada). Cualquier otra pagina - incluida una ultima pagina
+        // incompleta - siempre usa el tamano maximo (MaxExpandedRows x
+        // VisibleIconCount), con celdas vacias si le faltan iconos para
+        // llenarla, para que la ventana no cambie de tamano al pasar de pagina.
+        //
+        // Se llama al cargar/agregar/quitar iconos, al togglear Expandir, al
+        // cambiar de pagina y al cambiar el tamano de ventana elegido (desde
+        // App.xaml.cs).
+        public void UpdateIconLayout()
+        {
+            Log("Updating icon layout");
+            try
+            {
+                // LoadSettings() (y por lo tanto ApplyWindowSize) corre ANTES de
+                // InitializeComponent() en el constructor - en ese momento
+                // IconsPanel todavia es null. El constructor vuelve a llamar a
+                // UpdateIconLayout() el mismo una vez que ya esta inicializada.
+                if (IconsPanel == null)
+                {
+                    return;
+                }
+
+                int totalIcons = _iconButtons.Count;
+                int visibleColumns = Math.Max(1, App.Data.VisibleIconCount);
+                int maxRows = _expanded ? UIConfiguration.IconGrid.MaxExpandedRows : 1;
+                int pageCapacity = maxRows * visibleColumns;
+                int totalPages = Math.Max(1, (int)Math.Ceiling(totalIcons / (double)pageCapacity));
+
+                if (_pageIndex >= totalPages)
+                    _pageIndex = 0;
+                if (_pageIndex < 0)
+                    _pageIndex = totalPages - 1;
+
+                int pageStart = _pageIndex * pageCapacity;
+                int pageCount = Math.Max(0, Math.Min(pageCapacity, totalIcons - pageStart));
+
+                int rows;
+                int columns;
+                if (_pageIndex == 0)
+                {
+                    columns = _expanded ? visibleColumns : Math.Max(1, pageCount);
+                    rows = _expanded ? Math.Max(1, (int)Math.Ceiling(pageCount / (double)visibleColumns)) : 1;
+                }
+                else
+                {
+                    columns = visibleColumns;
+                    rows = maxRows;
+                }
+
+                IconsPanel.Children.Clear();
+                for (int i = 0; i < pageCount; i++)
+                {
+                    IconsPanel.Children.Add(_iconButtons[pageStart + i]);
+                }
+
+                IconsPanel.Rows = rows;
+                IconsPanel.Columns = columns;
+                IconsPanel.Width = columns * UIConfiguration.IconGrid.ColumnPitch;
+                IconsPanel.Height = rows * UIConfiguration.IconGrid.RowPitch;
+
+                // +40 = mismo "chrome" vertical (padding/margenes del Border + espacio
+                // para el DropShadowEffect) que ya hacia que 1 fila (100) diera la
+                // altura original de la ventana (140).
+                Height = rows * UIConfiguration.IconGrid.RowPitch + 40;
+            }
+            catch (Exception ex)
+            {
+                Log("Error updating icon layout", ex: ex);
+            }
+        }
+
+        private void FiltrosButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Sin funcionalidad todavia (ver ProximosPasos.txt #4) - el boton
+            // solo necesita existir y estar en la posicion correcta por ahora.
+            Log("Filtros clicked (sin funcionalidad todavia)");
+        }
+
+        private void ExpandirButton_Click(object sender, RoutedEventArgs e)
+        {
+            Log("Expandir clicked");
+            try
+            {
+                _expanded = !_expanded;
+                _pageIndex = 0;
+                ExpandirChevronRotation.Angle = _expanded ? 180 : 0;
+                UpdateIconLayout();
+            }
+            catch (Exception ex)
+            {
+                Log("Error toggling expand", ex: ex);
             }
         }
 
@@ -316,10 +452,12 @@ namespace Iconrrousel.Main
                 if (sender is MenuItem menuItem && menuItem.Tag is Button bttn && bttn.Tag is string item)
                 {
                     _paths.Remove(item);
-                    IconsPanel.Children.Remove(bttn);
+                    _iconButtons.Remove(bttn);
                     IconExtractor.RemoveFromCache(item);
                     CleanupButton(bttn);
                     updateJson();
+                    _pageIndex = 0;
+                    UpdateIconLayout();
                 }
             }
             catch (Exception ex)
@@ -377,13 +515,14 @@ namespace Iconrrousel.Main
             Log("Cleaning up icon panel");
             try
             {
-                foreach (var child in IconsPanel.Children)
+                // Recorre _iconButtons (no IconsPanel.Children): cuando esta expandido,
+                // solo la pagina actual esta montada en el panel, pero igual hay que
+                // liberar TODOS los botones existentes.
+                foreach (var btn in _iconButtons)
                 {
-                    if (child is Button btn)
-                    {
-                        CleanupButton(btn);
-                    }
+                    CleanupButton(btn);
                 }
+                _iconButtons.Clear();
                 IconsPanel.Children.Clear();
             }
             catch (Exception ex)
@@ -435,8 +574,10 @@ namespace Iconrrousel.Main
 
                 foreach (var path in _paths)
                 {
-                    IconsPanel.Children.Add(getButton(path));
+                    _iconButtons.Add((Button)getButton(path));
                 }
+                _pageIndex = 0;
+                UpdateIconLayout();
                 CenterWindowOnTopOfScreen();
             }
             catch (Exception ex)
@@ -459,6 +600,18 @@ namespace Iconrrousel.Main
             }
         }
 
+        // Ordena por el nombre que se ve debajo de cada icono (sin extension), no
+        // por la ruta completa - sino, iconos en carpetas distintas quedan
+        // agrupados por carpeta en vez de por nombre visible, lo que se ve como
+        // "desordenado" al pasar de pagina.
+        private static int CompareByDisplayName(string a, string b)
+        {
+            return string.Compare(
+                Path.GetFileNameWithoutExtension(a),
+                Path.GetFileNameWithoutExtension(b),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
         private void updatePaths(string[] filesDropped)
         {
             Log($"Updating paths with {filesDropped?.Length ?? 0} items");
@@ -470,7 +623,7 @@ namespace Iconrrousel.Main
                         _paths.Add(path);
                 }
 
-                _paths.Sort();
+                _paths.Sort(CompareByDisplayName);
             }
             catch (Exception ex)
             {
@@ -511,12 +664,21 @@ namespace Iconrrousel.Main
         }
 
 
+        // Ya no existe scroll en pixeles: ambos botones solo cambian de pagina
+        // (_pageIndex) y llaman a UpdateIconLayout, que repinta la pagina entera
+        // sin dejar ningun icono/columna de la pagina anterior a la vista.
+        //
+        // La direccion es la pedida explicitamente (no es la intuitiva "derecha
+        // = siguiente"): ScrollRight retrocede una pagina (de la primera pasa a
+        // la ultima) y ScrollLeft avanza una pagina (de la ultima pasa a la
+        // primera) - en ambos casos de forma infinita/circular.
         private void ScrollLeft_Click(object sender, RoutedEventArgs e)
         {
-            Log("Scroll left");
+            Log("Scroll left (pagina siguiente)");
             try
             {
-                IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset - UIConfiguration.ScrollButtons.ScrollOffset);
+                _pageIndex--;
+                UpdateIconLayout();
             }
             catch (Exception ex)
             {
@@ -526,10 +688,11 @@ namespace Iconrrousel.Main
 
         private void ScrollRight_Click(object sender, RoutedEventArgs e)
         {
-            Log("Scroll right");
+            Log("Scroll right (pagina anterior)");
             try
             {
-                IconViewer.ScrollToHorizontalOffset(IconViewer.HorizontalOffset + UIConfiguration.ScrollButtons.ScrollOffset);
+                _pageIndex++;
+                UpdateIconLayout();
             }
             catch (Exception ex)
             {

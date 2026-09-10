@@ -1,0 +1,21 @@
+S:
+Ancho de ventana: 380
+Filtros: X = 40, Y = 95
+Expandir: X = 320, Y = 95
+
+
+M:
+Ancho de ventana: 575
+Filtros: X = 40, Y = 95
+Expandir: X = 515, Y = 95
+
+L:
+Ancho de ventana: 870
+Filtros: X = 40, Y = 95
+Expandir: X = 810, Y = 95
+
+XL:
+Ancho de ventana: 1065
+Filtros: X = 40, Y = 95
+Expandir: X = 1005, Y = 95
+

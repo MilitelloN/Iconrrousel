@@ -82,6 +82,21 @@ namespace Iconrrousel.Main
             public static readonly Thickness ButtonMargin = new Thickness(4, 0, 4, 0);
         }
 
+        // Icon table/grid layout (colapsado: 1 fila; expandido: hasta 5 filas)
+        public static class IconGrid
+        {
+            public const double ColumnPitch = Icon.ButtonWidth + 8; // 90 + margen (4+4) de cada icono
+            public const double RowPitch = Icon.ButtonHeight;       // 100, sin margen vertical
+            public const int MaxExpandedRows = 5;
+        }
+
+        // Filtros / Expandir: botones flotantes sobre los iconos
+        public static class ActionButtons
+        {
+            public const double Size = 18;
+            public const double BottomOffset = 5; // distancia fija al borde inferior de la pill
+        }
+
         // Theme Colors Configuration
         public static class ThemeColors
         {

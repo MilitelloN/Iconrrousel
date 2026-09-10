@@ -8,7 +8,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Icon="/Resources/Icono.ico"
     Title="Iconroussel"
-    Height="140"
     MinWidth="150"
     MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}"
     SizeToContent="Width"
@@ -83,6 +82,32 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="FloatingActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"/>
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="9">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding TopButtonHover, Source={x:Static local:App.Data}}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding TopButtonPressed, Source={x:Static local:App.Data}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     
     <Border Background="{Binding BorderBackground, Source={x:Static local:App.Data}}" 
@@ -111,21 +136,25 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Scroll content -->
-                <ScrollViewer x:Name="IconViewer" 
+                <ScrollViewer x:Name="IconViewer"
                               Grid.Column="1"
-                              MinWidth="50"
-                              MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}"
+                              MinWidth="60"
+                              MaxWidth="{Binding IconViewerWidth, Source={x:Static local:App.Data}}"
                               Margin="0"
                               Padding="10,0,10,0"
-                              HorizontalScrollBarVisibility="Hidden" 
+                              HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Disabled"
                               Background="Transparent"
                               VerticalAlignment="Center"
                               HorizontalAlignment="Center">
-                    <WrapPanel x:Name="IconsPanel" 
-                               Orientation="Horizontal" 
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center" />
+                    <!-- Iconos como tabla: cada icono es una celda (UniformGrid reparte
+                         Rows x Columns fila por fila, izquierda-derecha y arriba-abajo).
+                         Rows/Columns/Width/Height se fijan desde el code-behind
+                         (MainWindow.UpdateIconLayout) segun cantidad de iconos, tamano
+                         de ventana elegido y si esta expandida o no. -->
+                    <UniformGrid x:Name="IconsPanel"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center" />
                 </ScrollViewer>
 
                 <!-- Left button -->
@@ -158,6 +187,49 @@
                     VerticalAlignment="Center"
                     Panel.ZIndex="1"/>
             </Grid>
+
+            <!-- Filtros / Expandir: flotan sobre los iconos (no ocupan espacio en el
+                 layout), posicionados por tamano de ventana (FiltrosButtonX /
+                 ExpandirButtonX) y siempre a la misma distancia del borde inferior
+                 (Canvas.Bottom fijo), sea la ventana colapsada o expandida. -->
+            <Canvas Panel.ZIndex="2" IsHitTestVisible="True">
+                <Button x:Name="FiltrosButton"
+                        Style="{StaticResource FloatingActionButtonStyle}"
+                        Canvas.Left="{Binding FiltrosButtonX, Source={x:Static local:App.Data}}"
+                        Canvas.Bottom="5"
+                        Click="FiltrosButton_Click"
+                        ToolTip="Filtros">
+                    <Path Data="M4,5 L20,5 L13.5,12.5 L13.5,19 L10.5,20.5 L10.5,12.5 Z"
+                          Stroke="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
+                          StrokeThickness="2"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          StrokeLineJoin="Round"
+                          Stretch="Uniform"
+                          Width="10" Height="10"/>
+                </Button>
+                <Button x:Name="ExpandirButton"
+                        Style="{StaticResource FloatingActionButtonStyle}"
+                        Canvas.Left="{Binding ExpandirButtonX, Source={x:Static local:App.Data}}"
+                        Canvas.Bottom="5"
+                        Click="ExpandirButton_Click"
+                        ToolTip="Expandir">
+                    <Path x:Name="ExpandirChevron"
+                          Data="M6,9 L12,15 18,9"
+                          Stroke="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
+                          StrokeThickness="2"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          StrokeLineJoin="Round"
+                          Stretch="Uniform"
+                          Width="10" Height="10"
+                          RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform>
+                            <RotateTransform x:Name="ExpandirChevronRotation" Angle="0"/>
+                        </Path.RenderTransform>
+                    </Path>
+                </Button>
+            </Canvas>
         </Grid>
     </Border>
 </Window>

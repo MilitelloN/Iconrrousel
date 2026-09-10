@@ -196,6 +196,10 @@ namespace Iconrrousel.Main
         private Brush _iconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
         private Brush _comboItemForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
         private double _windowMaxWidth = 600;
+        private double _iconViewerWidth = 500;
+        private int _visibleIconCount = 5;
+        private double _filtrosButtonX = 40;
+        private double _expandirButtonX = 460;
 
         private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
@@ -301,6 +305,36 @@ namespace Iconrrousel.Main
         {
             get => _windowMaxWidth;
             set => Set(ref _windowMaxWidth, value);
+        }
+
+        // Ancho fijo del "viewport" de iconos (VisibleIconCount * IconGrid.ColumnPitch).
+        // Distinto de WindowMaxWidth: WindowMaxWidth es el ancho de toda la pill
+        // (incluye botones de scroll y paddings), IconViewerWidth es solo el
+        // ancho del ScrollViewer de iconos - determina cuantos iconos entran.
+        public double IconViewerWidth
+        {
+            get => _iconViewerWidth;
+            set => Set(ref _iconViewerWidth, value);
+        }
+
+        // Cantidad de iconos/columnas visibles sin scrollear para el tamaño de
+        // ventana elegido (3/5/8/10 para Small/Medium/Large/ExtraLarge).
+        public int VisibleIconCount
+        {
+            get => _visibleIconCount;
+            set => Set(ref _visibleIconCount, value);
+        }
+
+        public double FiltrosButtonX
+        {
+            get => _filtrosButtonX;
+            set => Set(ref _filtrosButtonX, value);
+        }
+
+        public double ExpandirButtonX
+        {
+            get => _expandirButtonX;
+            set => Set(ref _expandirButtonX, value);
         }
 
         protected void Set<T>(ref T field, T value,
@@ -505,18 +539,48 @@ namespace Iconrrousel.Main
             Log($"Applying window size {option}");
             try
             {
+                // WindowMaxWidth = VisibleIconCount * IconGrid.ColumnPitch + 106, donde
+                // 106 es el "chrome" horizontal fijo de la ventana (padding/margenes del
+                // Border y del Grid interno, los 2 botones de scroll con sus margenes,
+                // y el padding del ScrollViewer, hoy 15px a cada lado = 30) - asi entran
+                // exactamente esa cantidad de iconos sin recortes.
                 switch (option)
                 {
                     case SettingsFields.WindowSizeOption.Small:
+                        VisibleIconCount = 3;
                         WindowMaxWidth = 400;
+                        FiltrosButtonX = 40;
+                        ExpandirButtonX = 320;
                         break;
                     case SettingsFields.WindowSizeOption.Large:
-                        WindowMaxWidth = 1200;
+                        VisibleIconCount = 8;
+                        WindowMaxWidth = 890;
+                        FiltrosButtonX = 40;
+                        ExpandirButtonX = 810;
+                        break;
+                    case SettingsFields.WindowSizeOption.ExtraLarge:
+                        VisibleIconCount = 10;
+                        WindowMaxWidth = 1086;
+                        FiltrosButtonX = 40;
+                        ExpandirButtonX = 1005;
                         break;
                     case SettingsFields.WindowSizeOption.Medium:
                     default:
-                        WindowMaxWidth = 800;
+                        VisibleIconCount = 5;
+                        WindowMaxWidth = 596;
+                        FiltrosButtonX = 40;
+                        ExpandirButtonX = 515;
                         break;
+                }
+
+                // +30 = el padding del ScrollViewer (15px a cada lado, ver MainWindow.xaml)
+                // - sin esto el contenido (columnas*98) mide lo mismo que el MaxWidth del
+                // ScrollViewer y el padding termina recortando la primera/ultima columna.
+                IconViewerWidth = VisibleIconCount * UIConfiguration.IconGrid.ColumnPitch + 30;
+
+                if (Application.Current?.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.UpdateIconLayout();
                 }
             }
             catch (Exception ex)

@@ -23,7 +23,8 @@ namespace Iconrrousel.Main.Configuration
         {
             Small,
             Medium,
-            Large
+            Large,
+            ExtraLarge
         }
 
         public ThemeOption _themeOption { get; set; }
