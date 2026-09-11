@@ -129,7 +129,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="ProximosPasos.txt" />
+    <None Include="ProximosPasos.md" />
     <Content Include="Resources\Icono.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
