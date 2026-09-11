@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="Iconrrousel.Main.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Icon="/Resources/Icono.ico"
     Title="Iconroussel"
-    MinWidth="150"
+    MinWidth="{x:Static local:UIConfiguration+WindowChrome.MinWidth}"
     MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}"
     SizeToContent="Width"
     ShowInTaskbar="False"
@@ -23,7 +23,7 @@
     WindowStyle="None"
     Background="Transparent"
     mc:Ignorable="d">
-    
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <conv:ShowNamesToSizeConverter x:Key="ShowNamesToSize" />
@@ -31,16 +31,16 @@
             <Setter Property="Background" Value="{Binding ScrollButtonBackground, Source={x:Static local:App.Data}}"/>
             <Setter Property="Foreground" Value="{Binding ScrollButtonForeground, Source={x:Static local:App.Data}}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="{x:Static local:UIConfiguration+ScrollButton.FontSize}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="10"
-                                Padding="2">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{x:Static local:UIConfiguration+ScrollButton.ButtonCornerRadius}"
+                                Padding="{x:Static local:UIConfiguration+ScrollButton.ContentPadding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -63,7 +63,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="{x:Static local:UIConfiguration+IconButtonChrome.ButtonCornerRadius}" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -84,8 +84,8 @@
         </Style>
         <Style x:Key="FloatingActionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"/>
-            <Setter Property="Width" Value="18"/>
-            <Setter Property="Height" Value="18"/>
+            <Setter Property="Width" Value="{x:Static local:UIConfiguration+ActionButtons.Size}"/>
+            <Setter Property="Height" Value="{x:Static local:UIConfiguration+ActionButtons.Size}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -93,7 +93,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="9">
+                                CornerRadius="{x:Static local:UIConfiguration+ActionButtons.ButtonCornerRadius}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -109,26 +109,26 @@
             </Setter>
         </Style>
     </Window.Resources>
-    
-    <Border Background="{Binding BorderBackground, Source={x:Static local:App.Data}}" 
-            CornerRadius="15" 
-            Margin="8"
-            Padding="4"
+
+    <Border Background="{Binding BorderBackground, Source={x:Static local:App.Data}}"
+            CornerRadius="{x:Static local:UIConfiguration+WindowChrome.BorderCornerRadius}"
+            Margin="{x:Static local:UIConfiguration+WindowChrome.BorderMargin}"
+            Padding="{x:Static local:UIConfiguration+WindowChrome.BorderPadding}"
             MaxWidth="{Binding WindowMaxWidth, Source={x:Static local:App.Data}}">
         <Border.Effect>
-            <DropShadowEffect Color="{Binding ShadowColor, Source={x:Static local:App.Data}}" 
-                            Direction="270" 
-                            ShadowDepth="5" 
-                            BlurRadius="20" 
-                            Opacity="0.7"/>
+            <DropShadowEffect Color="{Binding ShadowColor, Source={x:Static local:App.Data}}"
+                            Direction="{x:Static local:UIConfiguration+WindowChrome.ShadowDirection}"
+                            ShadowDepth="{x:Static local:UIConfiguration+WindowChrome.ShadowDepth}"
+                            BlurRadius="{x:Static local:UIConfiguration+WindowChrome.ShadowBlurRadius}"
+                            Opacity="{x:Static local:UIConfiguration+WindowChrome.ShadowOpacity}"/>
         </Border.Effect>
-        
+
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" MinHeight="110" />
+                <RowDefinition Height="*" MinHeight="{x:Static local:UIConfiguration+WindowChrome.ContentRowMinHeight}" />
             </Grid.RowDefinitions>
 
-            <Grid Margin="2,0,2,0">
+            <Grid Margin="{x:Static local:UIConfiguration+WindowChrome.InnerGridMargin}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -138,10 +138,10 @@
                 <!-- Scroll content -->
                 <ScrollViewer x:Name="IconViewer"
                               Grid.Column="1"
-                              MinWidth="60"
+                              MinWidth="{x:Static local:UIConfiguration+IconViewer.MinWidth}"
                               MaxWidth="{Binding IconViewerWidth, Source={x:Static local:App.Data}}"
                               Margin="0"
-                              Padding="10,0,10,0"
+                              Padding="{x:Static local:UIConfiguration+IconViewer.Padding}"
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Disabled"
                               Background="Transparent"
@@ -161,28 +161,28 @@
                 <Button
                     x:Name="ScrollLeft"
                     Grid.Column="0"
-                    Content="◀" 
+                    Content="◀"
                     Style="{StaticResource ModernScrollButton}"
-                    ClickMode="Press" 
+                    ClickMode="Press"
                     Click="ScrollLeft_Click"
-                    Width="30" 
-                    Height="80"
-                    Margin="0,0,2,0"
+                    Width="{x:Static local:UIConfiguration+ScrollButton.Width}"
+                    Height="{x:Static local:UIConfiguration+ScrollButton.Height}"
+                    Margin="{x:Static local:UIConfiguration+ScrollButton.LeftMargin}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     Panel.ZIndex="1"/>
 
                 <!-- Right button -->
                 <Button
-                    x:Name="ScrollRight" 
+                    x:Name="ScrollRight"
                     Grid.Column="2"
                     Content="▶"
                     Style="{StaticResource ModernScrollButton}"
                     ClickMode="Press"
                     Click="ScrollRight_Click"
-                    Width="30"
-                    Height="80"
-                    Margin="2,0,0,0"
+                    Width="{x:Static local:UIConfiguration+ScrollButton.Width}"
+                    Height="{x:Static local:UIConfiguration+ScrollButton.Height}"
+                    Margin="{x:Static local:UIConfiguration+ScrollButton.RightMargin}"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Panel.ZIndex="1"/>
@@ -191,43 +191,44 @@
             <!-- Filtros / Expandir: flotan sobre los iconos (no ocupan espacio en el
                  layout), siempre a la misma distancia del borde inferior (Canvas.Bottom
                  fijo), sea la ventana colapsada o expandida. Filtros se ancla al borde
-                 IZQUIERDO (FiltrosButtonX, fijo por tamano de ventana) y Expandir al
-                 borde DERECHO (Canvas.Right fijo) en vez de un Canvas.Left por tamano:
-                 la ventana tiene ancho dinamico segun la cantidad de iconos guardados
-                 (ver UpdateIconLayout), asi que un Canvas.Left pensado para el ancho
-                 maximo del tamano elegido dejaba a Expandir fuera de la ventana (invisible)
-                 cuando el ancho real era menor. -->
+                 IZQUIERDO y Expandir al borde DERECHO (Canvas.Right) en vez de un
+                 Canvas.Left por tamano: la ventana tiene ancho dinamico segun la
+                 cantidad de iconos guardados (ver UpdateIconLayout), asi que un
+                 Canvas.Left pensado para el ancho maximo del tamano elegido dejaba a
+                 Expandir fuera de la ventana (invisible) cuando el ancho real era menor. -->
             <Canvas Panel.ZIndex="2" IsHitTestVisible="True">
                 <Button x:Name="FiltrosButton"
                         Style="{StaticResource FloatingActionButtonStyle}"
-                        Canvas.Left="{Binding FiltrosButtonX, Source={x:Static local:App.Data}}"
-                        Canvas.Bottom="5"
+                        Canvas.Left="{x:Static local:UIConfiguration+ActionButtons.FiltrosLeftOffset}"
+                        Canvas.Bottom="{x:Static local:UIConfiguration+ActionButtons.BottomOffset}"
                         Click="FiltrosButton_Click"
                         ToolTip="Filtros">
                     <Path Data="M4,5 L20,5 L13.5,12.5 L13.5,19 L10.5,20.5 L10.5,12.5 Z"
                           Stroke="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
-                          StrokeThickness="2"
+                          StrokeThickness="{x:Static local:UIConfiguration+ActionButtons.IconStrokeThickness}"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"
                           StrokeLineJoin="Round"
                           Stretch="Uniform"
-                          Width="10" Height="10"/>
+                          Width="{x:Static local:UIConfiguration+ActionButtons.IconGlyphSize}"
+                          Height="{x:Static local:UIConfiguration+ActionButtons.IconGlyphSize}"/>
                 </Button>
                 <Button x:Name="ExpandirButton"
                         Style="{StaticResource FloatingActionButtonStyle}"
-                        Canvas.Right="40"
-                        Canvas.Bottom="5"
+                        Canvas.Right="{x:Static local:UIConfiguration+ActionButtons.ExpandirRightOffset}"
+                        Canvas.Bottom="{x:Static local:UIConfiguration+ActionButtons.BottomOffset}"
                         Click="ExpandirButton_Click"
                         ToolTip="Expandir">
                     <Path x:Name="ExpandirChevron"
                           Data="M6,9 L12,15 18,9"
                           Stroke="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
-                          StrokeThickness="2"
+                          StrokeThickness="{x:Static local:UIConfiguration+ActionButtons.IconStrokeThickness}"
                           StrokeStartLineCap="Round"
                           StrokeEndLineCap="Round"
                           StrokeLineJoin="Round"
                           Stretch="Uniform"
-                          Width="10" Height="10"
+                          Width="{x:Static local:UIConfiguration+ActionButtons.IconGlyphSize}"
+                          Height="{x:Static local:UIConfiguration+ActionButtons.IconGlyphSize}"
                           RenderTransformOrigin="0.5,0.5">
                         <Path.RenderTransform>
                             <RotateTransform x:Name="ExpandirChevronRotation" Angle="0"/>

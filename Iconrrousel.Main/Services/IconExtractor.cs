@@ -59,6 +59,38 @@ namespace Iconrrousel.Main
             public string szTypeName;
         }
 
+        // Respaldo para cuando la lista de iconos "jumbo" del sistema (SHIL_JUMBO)
+        // devuelve un bitmap completamente transparente para un archivo puntual -
+        // se vio con accesos directos .url con icono personalizado (ej. juegos de
+        // Steam) que el Explorador de Windows muestra bien pero que esa lista
+        // compartida entrega en blanco. IShellItemImageFactory es la misma API que
+        // usa el Explorador para generar sus miniaturas/iconos grandes, y no
+        // depende de ningun paquete NuGet externo.
+        [ComImport]
+        [Guid("BCC18B79-BA16-442F-80C4-8A59C30C463B")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        interface IShellItemImageFactory
+        {
+            void GetImage(SIZE size, int flags, out IntPtr phbm);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct SIZE
+        {
+            public int cx;
+            public int cy;
+            public SIZE(int size) { cx = size; cy = size; }
+        }
+
+        private const int SIIGBF_ICONONLY = 0x4;
+        private static readonly Guid IID_IShellItemImageFactory = new Guid("BCC18B79-BA16-442F-80C4-8A59C30C463B");
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern void SHCreateItemFromParsingName(
+            string pszPath,
+            IntPtr pbc,
+            ref Guid riid,
+            out IShellItemImageFactory ppv);
 
         public static ImageSource GetJumboIcon(string filePath)
         {
@@ -81,7 +113,8 @@ namespace Iconrrousel.Main
 
                 using (var icon = Icon.FromHandle(hIcon))
                 using (var bitmap = icon.ToBitmap())
-                using (var croppedBmp = CropTransparent(bitmap))
+                using (var fallbackBitmap = IsFullyTransparent(bitmap) ? TryGetShellItemIcon(filePath, 256) : null)
+                using (var croppedBmp = CropTransparent(fallbackBitmap ?? bitmap))
                 {
                     IntPtr hBitmap = croppedBmp.GetHbitmap();
                     try
@@ -109,6 +142,39 @@ namespace Iconrrousel.Main
 
                 if (iml != null)
                     Marshal.ReleaseComObject(iml);
+            }
+        }
+
+        private static bool IsFullyTransparent(Bitmap bmp) => GetBoundingBox(bmp) == Rectangle.Empty;
+
+        private static Bitmap TryGetShellItemIcon(string filePath, int size)
+        {
+            try
+            {
+                var riid = IID_IShellItemImageFactory;
+                SHCreateItemFromParsingName(filePath, IntPtr.Zero, ref riid, out var factory);
+                if (factory == null)
+                    return null;
+
+                factory.GetImage(new SIZE(size), SIIGBF_ICONONLY, out IntPtr hBitmap);
+                if (hBitmap == IntPtr.Zero)
+                    return null;
+
+                try
+                {
+                    using (var raw = Image.FromHbitmap(hBitmap))
+                    {
+                        return new Bitmap(raw); // copia propia, independiente del HBITMAP nativo
+                    }
+                }
+                finally
+                {
+                    DeleteObject(hBitmap);
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 

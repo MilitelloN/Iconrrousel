@@ -1,7 +1,5 @@
-using Iconrrousel.Main.Configuration;
+﻿using Iconrrousel.Main.Configuration;
 using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,20 +9,9 @@ namespace Iconrrousel.Main
     {
         public TimeRange Result { get; private set; }
 
-        private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
-        {
-            LoggingConfig.EnsureConfigured();
-            var baseMsg = $"[{DateTime.Now:O}] TimeRangeDialog.{caller}: {message}";
-            if (ex != null)
-            {
-                baseMsg += $" | Exception: {ex}";
-            }
-            Trace.WriteLine(baseMsg);
-        }
-
         public TimeRangeDialog()
         {
-            Log("Initializing TimeRangeDialog");
+            LoggingConfig.Log("Initializing TimeRangeDialog");
             DataContext = App.Data;
             InitializeComponent();
 
@@ -34,21 +21,9 @@ namespace Iconrrousel.Main
             EndMinuteBox.Text = "00";
         }
 
-        public TimeRangeDialog(TimeRange existingRange) : this()
-        {
-            if (existingRange != null)
-            {
-                Log("Loading existing time range");
-                StartHourBox.Text = existingRange.StartTime.Hours.ToString("D2");
-                StartMinuteBox.Text = existingRange.StartTime.Minutes.ToString("D2");
-                EndHourBox.Text = existingRange.EndTime.Hours.ToString("D2");
-                EndMinuteBox.Text = existingRange.EndTime.Minutes.ToString("D2");
-            }
-        }
-
         private void OK_Click(object sender, RoutedEventArgs e)
         {
-            Log("OK button clicked");
+            LoggingConfig.Log("OK button clicked");
             try
             {
                 if (!int.TryParse(StartHourBox.Text, out int startHour) || startHour < 0 || startHour > 23)
@@ -83,14 +58,14 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error creating time range", ex: ex);
+                LoggingConfig.Log("Error creating time range", ex: ex);
                 System.Windows.Forms.MessageBox.Show("Error creating time range: " + ex.Message, "Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
             }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            Log("Cancel button clicked");
+            LoggingConfig.Log("Cancel button clicked");
             DialogResult = false;
             Close();
         }

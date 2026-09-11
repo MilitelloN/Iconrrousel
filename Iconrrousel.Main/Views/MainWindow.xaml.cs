@@ -1,11 +1,9 @@
-﻿using Microsoft.WindowsAPICodePack.Shell;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,11 +11,9 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Application = System.Windows.Application;
 using Brushes = System.Windows.Media.Brushes;
 using Image = System.Windows.Controls.Image;
-using Iconrrousel.Main.Services;
 
 
 namespace Iconrrousel.Main
@@ -91,45 +87,15 @@ namespace Iconrrousel.Main
         // expandido: hasta MaxExpandedRows x VisibleIconCount). Ya no hay scroll en
         // pixeles: los botones ScrollLeft/ScrollRight solo cambian esta pagina.
         private int _pageIndex = 0;
-        public TimeRangeService TimeRangeService { get; private set; }
-
-        private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
-        {
-            LoggingConfig.EnsureConfigured();
-            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
-            if (ex != null)
-            {
-                baseMsg += $" | Exception: {ex}";
-            }
-            Trace.WriteLine(baseMsg);
-        }
-
-        private static void LogStatic(string message, [CallerMemberName] string caller = null, Exception ex = null)
-        {
-            LoggingConfig.EnsureConfigured();
-            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
-            if (ex != null)
-            {
-                baseMsg += $" | Exception: {ex}";
-            }
-            Trace.WriteLine(baseMsg);
-        }
 
         public MainWindow()
         {
-            Log("Initializing MainWindow");
+            LoggingConfig.Log("Initializing MainWindow");
             DataContext = App.Data;
-            var settings = App.Data.LoadSettings();
+            App.Data.LoadSettings();
             InitializeComponent();
 
-            TimeRangeService = new TimeRangeService();
-            if (settings._timeRanges != null && settings._timeRanges.Count > 0)
-            {
-                TimeRangeService.UpdateTimeRanges(settings._timeRanges);
-            }
-
             PreviewMouseLeftButtonDown += Window_PreviewMouseLeftButtonDown;
-            App.IconService.OnDeleteAllIcons += DeleteAllIcons;
             Closed += MainWindow_Closed;
             SizeChanged += MainWindow_SizeChanged;
 
@@ -151,7 +117,7 @@ namespace Iconrrousel.Main
                 }
                 catch (Exception ex)
                 {
-                    Log("Error loading paths file", ex: ex);
+                    LoggingConfig.LogAndNotify("No se pudieron cargar los iconos guardados.", ex);
                 }
             }
 
@@ -160,7 +126,7 @@ namespace Iconrrousel.Main
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Log("SizeChanged");
+            LoggingConfig.Log("SizeChanged");
             try
             {
                 if (IsLoaded)
@@ -170,41 +136,39 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error in SizeChanged", ex: ex);
+                LoggingConfig.Log("Error in SizeChanged", ex: ex);
             }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
-            Log("Closed event");
+            LoggingConfig.Log("Closed event");
             try
             {
-                App.IconService.OnDeleteAllIcons -= DeleteAllIcons;
-                TimeRangeService?.Stop();
                 CleanupIconPanel();
             }
             catch (Exception ex)
             {
-                Log("Error in Closed handler", ex: ex);
+                LoggingConfig.Log("Error in Closed handler", ex: ex);
             }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Log("Loaded event");
+            LoggingConfig.Log("Loaded event");
             try
             {
                 CenterWindowOnTopOfScreen();
             }
             catch (Exception ex)
             {
-                Log("Error in Loaded handler", ex: ex);
+                LoggingConfig.Log("Error in Loaded handler", ex: ex);
             }
         }
 
         private void CenterWindowOnTopOfScreen()
         {
-            Log("Centering window");
+            LoggingConfig.Log("Centering window");
             try
             {
                 var screens = System.Windows.Forms.Screen.AllScreens;
@@ -220,7 +184,7 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error centering window", ex: ex);
+                LoggingConfig.Log("Error centering window", ex: ex);
             }
         }
 
@@ -244,7 +208,7 @@ namespace Iconrrousel.Main
         // App.xaml.cs).
         public void UpdateIconLayout()
         {
-            Log("Updating icon layout");
+            LoggingConfig.Log("Updating icon layout");
             try
             {
                 // LoadSettings() (y por lo tanto ApplyWindowSize) corre ANTES de
@@ -301,7 +265,7 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error updating icon layout", ex: ex);
+                LoggingConfig.Log("Error updating icon layout", ex: ex);
             }
         }
 
@@ -309,12 +273,12 @@ namespace Iconrrousel.Main
         {
             // Sin funcionalidad todavia (ver ProximosPasos.txt #4) - el boton
             // solo necesita existir y estar en la posicion correcta por ahora.
-            Log("Filtros clicked (sin funcionalidad todavia)");
+            LoggingConfig.Log("Filtros clicked (sin funcionalidad todavia)");
         }
 
         private void ExpandirButton_Click(object sender, RoutedEventArgs e)
         {
-            Log("Expandir clicked");
+            LoggingConfig.Log("Expandir clicked");
             try
             {
                 // El boton sigue siempre visible, pero si todos los iconos ya entran en
@@ -323,7 +287,7 @@ namespace Iconrrousel.Main
                 int visibleColumns = Math.Max(1, App.Data.VisibleIconCount);
                 if (!_expanded && _iconButtons.Count <= visibleColumns)
                 {
-                    Log("Expandir: no corresponde (todos los iconos entran en 1 fila)");
+                    LoggingConfig.Log("Expandir: no corresponde (todos los iconos entran en 1 fila)");
                     return;
                 }
 
@@ -334,13 +298,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error toggling expand", ex: ex);
+                LoggingConfig.Log("Error toggling expand", ex: ex);
             }
         }
 
         private UIElement getButton(string item)
         {
-            Log($"Creating button for {item}");
+            LoggingConfig.Log($"Creating button for {item}");
             try
             {
                 var panel = new StackPanel
@@ -371,13 +335,13 @@ namespace Iconrrousel.Main
                 var nameBlock = new TextBlock
                 {
                     Text = System.IO.Path.GetFileNameWithoutExtension(item),
-                    FontSize = 11,
+                    FontSize = UIConfiguration.Icon.LabelFontSize,
                     TextWrapping = TextWrapping.Wrap,
                     TextAlignment = TextAlignment.Center,
                     TextTrimming = TextTrimming.CharacterEllipsis,
-                    MaxWidth = UIConfiguration.Icon.ButtonWidth + 10,
+                    MaxWidth = UIConfiguration.Icon.ButtonWidth + UIConfiguration.Icon.LabelExtraWidth,
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness(0, 4, 0, 0)
+                    Margin = new Thickness(0, UIConfiguration.Icon.LabelTopMargin, 0, 0)
                 };
                 nameBlock.SetBinding(TextBlock.ForegroundProperty, new Binding("IconTextForeground") { Source = App.Data });
 
@@ -418,14 +382,14 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log($"Error creating button for {item}", ex: ex);
+                LoggingConfig.Log($"Error creating button for {item}", ex: ex);
                 throw;
             }
         }
 
         private void IconButton_Click(object sender, RoutedEventArgs e)
         {
-            Log("Icon button clicked");
+            LoggingConfig.Log("Icon button clicked");
             try
             {
                 if (sender is Button btn && btn.Tag is string path)
@@ -453,13 +417,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error opening icon", ex: ex);
+                LoggingConfig.Log("Error opening icon", ex: ex);
             }
         }
 
         private void DeleteIcon_Click(object sender, RoutedEventArgs e)
         {
-            Log("Delete icon clicked");
+            LoggingConfig.Log("Delete icon clicked");
             try
             {
                 if (sender is MenuItem menuItem && menuItem.Tag is Button bttn && bttn.Tag is string item)
@@ -475,13 +439,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error deleting icon", ex: ex);
+                LoggingConfig.Log("Error deleting icon", ex: ex);
             }
         }
 
         private void CleanupButton(Button bttn)
         {
-            Log("Cleaning up button");
+            LoggingConfig.Log("Cleaning up button");
             try
             {
                 if (bttn.ContextMenu != null)
@@ -519,13 +483,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error cleaning up button", ex: ex);
+                LoggingConfig.Log("Error cleaning up button", ex: ex);
             }
         }
 
         private void CleanupIconPanel()
         {
-            Log("Cleaning up icon panel");
+            LoggingConfig.Log("Cleaning up icon panel");
             try
             {
                 // Recorre _iconButtons (no IconsPanel.Children): cuando esta expandido,
@@ -540,13 +504,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error cleaning icon panel", ex: ex);
+                LoggingConfig.Log("Error cleaning icon panel", ex: ex);
             }
         }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
         {
-            Log("DragEnter");
+            LoggingConfig.Log("DragEnter");
             try
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -556,31 +520,32 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error in DragEnter", ex: ex);
+                LoggingConfig.Log("Error in DragEnter", ex: ex);
             }
         }
 
         private void Grid_Drop(object sender, DragEventArgs e)
         {
-            Log("Drop");
+            LoggingConfig.Log("Drop");
             try
             {
                 var filesDropped = (string[])e.Data.GetData(DataFormats.FileDrop);
 
                 updatePaths(filesDropped);
                 updateJson();
-                updatePanel();
+                _pageIndex = 0;
+                UpdateIconLayout();
                 CenterWindowOnTopOfScreen();
             }
             catch (Exception ex)
             {
-                Log("Error in Drop", ex: ex);
+                LoggingConfig.Log("Error in Drop", ex: ex);
             }
         }
 
         private void updatePanel()
         {
-            Log("Updating panel");
+            LoggingConfig.Log("Updating panel");
             try
             {
                 CleanupIconPanel();
@@ -595,13 +560,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error updating panel", ex: ex);
+                LoggingConfig.Log("Error updating panel", ex: ex);
             }
         }
 
         public void updateJson()
         {
-            Log("Persisting paths to JSON");
+            LoggingConfig.Log("Persisting paths to JSON");
             try
             {
                 string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
@@ -609,7 +574,7 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error writing paths file", ex: ex);
+                LoggingConfig.LogAndNotify("No se pudieron guardar los cambios en los iconos.", ex);
             }
         }
 
@@ -625,69 +590,57 @@ namespace Iconrrousel.Main
                 StringComparison.OrdinalIgnoreCase);
         }
 
+        // Solo crea botones para los paths nuevos - antes cada drop reconstruia
+        // TODOS los botones existentes (CleanupIconPanel + recrear todo desde
+        // _paths), aunque se haya soltado un unico icono nuevo.
         private void updatePaths(string[] filesDropped)
         {
-            Log($"Updating paths with {filesDropped?.Length ?? 0} items");
+            LoggingConfig.Log($"Updating paths with {filesDropped?.Length ?? 0} items");
             try
             {
+                bool added = false;
                 foreach (var path in filesDropped)
                 {
-                    if (!_paths.Contains(path))
-                        _paths.Add(path);
+                    if (_paths.Contains(path))
+                        continue;
+
+                    _paths.Add(path);
+                    _iconButtons.Add((Button)getButton(path));
+                    added = true;
                 }
 
-                _paths.Sort(CompareByDisplayName);
-            }
-            catch (Exception ex)
-            {
-                Log("Error updating paths", ex: ex);
-            }
-        }
-
-        public static ImageSource GetHighQualityIcon(string path)
-        {
-            LogStatic($"Getting high quality icon for {path}");
-            try
-            {
-                using (var shellFile = ShellFile.FromFilePath(path))
-                using (var bitmap = shellFile.Thumbnail.ExtraLargeBitmap)
+                if (added)
                 {
-                    var hBitmap = bitmap.GetHbitmap();
-                    try
-                    {
-                        var source = Imaging.CreateBitmapSourceFromHBitmap(
-                            hBitmap,
-                            IntPtr.Zero,
-                            Int32Rect.Empty,
-                            BitmapSizeOptions.FromEmptyOptions());
-                        source.Freeze();
-                        return source;
-                    }
-                    finally
-                    {
-                        IconExtractor.DeleteObject(hBitmap);
-                    }
+                    SortPathsAndButtons();
                 }
             }
             catch (Exception ex)
             {
-                LogStatic("Error getting high quality icon", ex: ex);
-                throw;
+                LoggingConfig.Log("Error updating paths", ex: ex);
             }
         }
 
+        // _iconButtons[i] tiene que seguir correspondiendo a _paths[i] (UpdateIconLayout
+        // pagina sobre ambas listas por indice) - reordena las dos juntas por nombre
+        // visible en vez de volver a crear los botones.
+        private void SortPathsAndButtons()
+        {
+            var order = Enumerable.Range(0, _paths.Count)
+                .OrderBy(i => System.IO.Path.GetFileNameWithoutExtension(_paths[i]), StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            _paths = order.Select(i => _paths[i]).ToList();
+            _iconButtons = order.Select(i => _iconButtons[i]).ToList();
+        }
 
         // Ya no existe scroll en pixeles: ambos botones solo cambian de pagina
         // (_pageIndex) y llaman a UpdateIconLayout, que repinta la pagina entera
         // sin dejar ningun icono/columna de la pagina anterior a la vista.
-        //
-        // La direccion es la pedida explicitamente (no es la intuitiva "derecha
-        // = siguiente"): ScrollRight retrocede una pagina (de la primera pasa a
-        // la ultima) y ScrollLeft avanza una pagina (de la ultima pasa a la
-        // primera) - en ambos casos de forma infinita/circular.
+        // ScrollLeft resta una pagina y ScrollRight suma una pagina, de forma
+        // infinita/circular (UpdateIconLayout hace wrap en ambos sentidos).
         private void ScrollLeft_Click(object sender, RoutedEventArgs e)
         {
-            Log("Scroll left (pagina siguiente)");
+            LoggingConfig.Log("Scroll left (pagina anterior)");
             try
             {
                 _pageIndex--;
@@ -695,13 +648,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error scrolling left", ex: ex);
+                LoggingConfig.Log("Error scrolling left", ex: ex);
             }
         }
 
         private void ScrollRight_Click(object sender, RoutedEventArgs e)
         {
-            Log("Scroll right (pagina anterior)");
+            LoggingConfig.Log("Scroll right (pagina siguiente)");
             try
             {
                 _pageIndex++;
@@ -709,13 +662,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error scrolling right", ex: ex);
+                LoggingConfig.Log("Error scrolling right", ex: ex);
             }
         }
 
-        private void DeleteAllIcons()
+        public void DeleteAllIcons()
         {
-            Log("Deleting all icons");
+            LoggingConfig.Log("Deleting all icons");
             try
             {
                 _paths.Clear();
@@ -725,7 +678,7 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error deleting all icons", ex: ex);
+                LoggingConfig.Log("Error deleting all icons", ex: ex);
             }
         }
     }

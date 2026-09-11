@@ -22,27 +22,10 @@ namespace Iconrrousel.Main
         private NotifyIcon _trayIcon;
         private System.Drawing.Icon _trayIconImage;
         private SettingsWindow _settingsWindow;
-        public static IIconService IconService { get; } = new IconService();
-
-        private void EnsureLogging()
-        {
-            LoggingConfig.EnsureConfigured();
-        }
-
-        private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
-        {
-            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
-            if (ex != null)
-            {
-                baseMsg += $" | Exception: {ex}";
-            }
-            Trace.WriteLine(baseMsg);
-        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            EnsureLogging();
-            Log("Starting application");
+            LoggingConfig.Log("Starting application");
             try
             {
                 base.OnStartup(e);
@@ -62,7 +45,7 @@ namespace Iconrrousel.Main
 
                 _trayIcon.DoubleClick += (s, _) =>
                 {
-                    Log("Tray double click - showing main window");
+                    LoggingConfig.Log("Tray double click - showing main window");
                     Current.MainWindow.Show();
                     Current.MainWindow.WindowState = WindowState.Normal;
                     Current.MainWindow.Activate();
@@ -76,14 +59,14 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error in OnStartup", ex: ex);
+                LoggingConfig.Log("Error in OnStartup", ex: ex);
                 throw;
             }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            Log("Exiting application");
+            LoggingConfig.Log("Exiting application");
             try
             {
                 base.OnExit(e);
@@ -110,13 +93,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error in OnExit", ex: ex);
+                LoggingConfig.Log("Error in OnExit", ex: ex);
             }
         }
 
         private void OpenSettings(object sender, EventArgs e)
         {
-            Log("Opening settings window");
+            LoggingConfig.Log("Opening settings window");
             try
             {
                 if (_settingsWindow == null || !_settingsWindow.IsLoaded)
@@ -130,13 +113,16 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error opening settings", ex: ex);
+                LoggingConfig.Log("Error opening settings", ex: ex);
             }
         }
 
         public static SharedData Data { get; } = new SharedData();
     }
 
+    // Logging compartido por toda la app - antes cada clase (MainWindow,
+    // SettingsWindow, TimeRangeDialog, etc.) tenia su propia copia identica de
+    // este mismo metodo Log(); ahora hay una sola implementacion.
     public static class LoggingConfig
     {
         private static bool _configured;
@@ -169,6 +155,30 @@ namespace Iconrrousel.Main
                 }
             }
         }
+
+        public static void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
+        {
+            EnsureConfigured();
+            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
+            if (ex != null)
+            {
+                baseMsg += $" | Exception: {ex}";
+            }
+            Trace.WriteLine(baseMsg);
+        }
+
+        // Para errores que le importan al usuario (persistencia de configuracion/
+        // iconos): loguea igual que Log(), pero ademas lo avisa con un mensaje -
+        // antes estos catch quedaban completamente silenciosos.
+        public static void LogAndNotify(string userMessage, Exception ex, [CallerMemberName] string caller = null)
+        {
+            Log(userMessage, caller, ex);
+            System.Windows.Forms.MessageBox.Show(
+                userMessage,
+                "Iconroussel",
+                System.Windows.Forms.MessageBoxButtons.OK,
+                System.Windows.Forms.MessageBoxIcon.Warning);
+        }
     }
 
     public class SharedData : INotifyPropertyChanged
@@ -176,7 +186,6 @@ namespace Iconrrousel.Main
         public event PropertyChangedEventHandler PropertyChanged;
         public string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-        public readonly static string _CONFIG_FILE = "Settings.json";
         private bool _showIconNames;
         private int _themeSelected;
         private int _windowSizeSelected;
@@ -198,17 +207,6 @@ namespace Iconrrousel.Main
         private double _windowMaxWidth = 600;
         private double _iconViewerWidth = 500;
         private int _visibleIconCount = 5;
-        private double _filtrosButtonX = 40;
-
-        private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
-        {
-            var baseMsg = $"[{DateTime.Now:O}] SharedData.{caller}: {message}";
-            if (ex != null)
-            {
-                baseMsg += $" | Exception: {ex}";
-            }
-            Trace.WriteLine(baseMsg);
-        }
 
         public bool ShowIconNames
         {
@@ -324,12 +322,6 @@ namespace Iconrrousel.Main
             set => Set(ref _visibleIconCount, value);
         }
 
-        public double FiltrosButtonX
-        {
-            get => _filtrosButtonX;
-            set => Set(ref _filtrosButtonX, value);
-        }
-
         protected void Set<T>(ref T field, T value,
         [System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
@@ -342,20 +334,20 @@ namespace Iconrrousel.Main
 
         public SettingsFields LoadSettings()
         {
-            Log("Loading settings file");
+            LoggingConfig.Log("Loading settings file");
             SettingsFields settings;
             try
             {
-                if (File.Exists(Path.Combine(AppPaths.DataDir, _CONFIG_FILE)))
+                if (File.Exists(Path.Combine(AppPaths.DataDir, AppPaths.SettingsFileName)))
                 {
-                    var json = File.ReadAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE));
+                    var json = File.ReadAllText(Path.Combine(AppPaths.DataDir, AppPaths.SettingsFileName));
                     settings = JsonConvert.DeserializeObject<SettingsFields>(json);
                 }
                 else
                 {
                     settings = new SettingsFields();
                     string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-                    File.WriteAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE), json);
+                    File.WriteAllText(Path.Combine(AppPaths.DataDir, AppPaths.SettingsFileName), json);
                 }
 
                 UpdateMainWindow(settings);
@@ -363,7 +355,7 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error loading settings", ex: ex);
+                LoggingConfig.LogAndNotify("No se pudo cargar la configuracion guardada, se usaran los valores por defecto.", ex);
                 settings = new SettingsFields();
                 return settings;
             }
@@ -379,7 +371,7 @@ namespace Iconrrousel.Main
 
         public void UpdateMainWindow(SettingsFields settings)
         {
-            Log("Updating main window with settings");
+            LoggingConfig.Log("Updating main window with settings");
             try
             {
                 ShowIconNames = settings._displayNames;
@@ -388,24 +380,16 @@ namespace Iconrrousel.Main
                 TimeRanges = settings._timeRanges ?? new List<TimeRange>();
                 ApplyTheme(settings._themeOption);
                 ApplyWindowSize(settings._windowSizeOption);
-                
-                if (Application.Current.MainWindow is MainWindow mainWindow)
-                {
-                    if (mainWindow.TimeRangeService != null)
-                    {
-                        mainWindow.TimeRangeService.UpdateTimeRanges(TimeRanges);
-                    }
-                }
             }
             catch (Exception ex)
             {
-                Log("Error updating main window", ex: ex);
+                LoggingConfig.Log("Error updating main window", ex: ex);
             }
         }
 
         private void ApplyTheme(SettingsFields.ThemeOption theme)
         {
-            Log($"Applying theme {theme}");
+            LoggingConfig.Log($"Applying theme {theme}");
             try
             {
                 SolidColorBrush CreateAndFreezeBrush(Color color)
@@ -523,49 +507,21 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error applying theme", ex: ex);
+                LoggingConfig.Log("Error applying theme", ex: ex);
             }
         }
 
         private void ApplyWindowSize(SettingsFields.WindowSizeOption option)
         {
-            Log($"Applying window size {option}");
+            LoggingConfig.Log($"Applying window size {option}");
             try
             {
-                // WindowMaxWidth = VisibleIconCount * IconGrid.ColumnPitch + 106, donde
-                // 106 es el "chrome" horizontal fijo de la ventana (padding/margenes del
-                // Border y del Grid interno, los 2 botones de scroll con sus margenes,
-                // y el padding del ScrollViewer, hoy 15px a cada lado = 30) - asi entran
-                // exactamente esa cantidad de iconos sin recortes.
-                switch (option)
-                {
-                    case SettingsFields.WindowSizeOption.Small:
-                        VisibleIconCount = 3;
-                        WindowMaxWidth = 400;
-                        FiltrosButtonX = 40;
-                        break;
-                    case SettingsFields.WindowSizeOption.Large:
-                        VisibleIconCount = 8;
-                        WindowMaxWidth = 890;
-                        FiltrosButtonX = 40;
-                        break;
-                    case SettingsFields.WindowSizeOption.ExtraLarge:
-                        VisibleIconCount = 10;
-                        WindowMaxWidth = 1086;
-                        FiltrosButtonX = 40;
-                        break;
-                    case SettingsFields.WindowSizeOption.Medium:
-                    default:
-                        VisibleIconCount = 5;
-                        WindowMaxWidth = 596;
-                        FiltrosButtonX = 40;
-                        break;
-                }
+                var tier = UIConfiguration.WindowSizeTiers.Get(option);
+                VisibleIconCount = tier.VisibleIconCount;
+                WindowMaxWidth = tier.WindowMaxWidth;
 
-                // +30 = el padding del ScrollViewer (15px a cada lado, ver MainWindow.xaml)
-                // - sin esto el contenido (columnas*98) mide lo mismo que el MaxWidth del
-                // ScrollViewer y el padding termina recortando la primera/ultima columna.
-                IconViewerWidth = VisibleIconCount * UIConfiguration.IconGrid.ColumnPitch + 30;
+                IconViewerWidth = VisibleIconCount * UIConfiguration.IconGrid.ColumnPitch
+                    + UIConfiguration.IconViewer.ExtraWidthForPadding;
 
                 if (Application.Current?.MainWindow is MainWindow mainWindow)
                 {
@@ -574,13 +530,15 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error applying window size", ex: ex);
+                LoggingConfig.Log("Error applying window size", ex: ex);
             }
         }
     }
 
     public static class AppPaths
     {
+        public const string SettingsFileName = "Settings.json";
+
         public static string DataDir { get; } =
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

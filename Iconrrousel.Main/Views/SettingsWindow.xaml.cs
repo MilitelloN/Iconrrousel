@@ -4,23 +4,15 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Path = System.IO.Path;
 
@@ -31,24 +23,12 @@ namespace Iconrrousel.Main
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public readonly static string _CONFIG_FILE = "Settings.json";
         private SettingsFields _settings;
         private ObservableCollection<TimeRange> _timeRanges;
 
-        private void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
-        {
-            LoggingConfig.EnsureConfigured();
-            var baseMsg = $"[{DateTime.Now:O}] SettingsWindow.{caller}: {message}";
-            if (ex != null)
-            {
-                baseMsg += $" | Exception: {ex}";
-            }
-            Trace.WriteLine(baseMsg);
-        }
-
         public SettingsWindow()
         {
-            Log("Initializing");
+            LoggingConfig.Log("Initializing");
             DataContext = App.Data;
             _timeRanges = new ObservableCollection<TimeRange>();
             InitializeComponent();
@@ -60,13 +40,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error loading settings", ex: ex);
+                LoggingConfig.Log("Error loading settings", ex: ex);
             }
         }
 
         private void ApplySettings(SettingsFields settings)
         {
-            Log("Applying settings to UI");
+            LoggingConfig.Log("Applying settings to UI");
             try
             {
                 StartUpCbox.IsChecked = settings._startup;
@@ -88,13 +68,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error applying settings", ex: ex);
+                LoggingConfig.Log("Error applying settings", ex: ex);
             }
         }
 
         private void AddTimeRange_Click(object sender, RoutedEventArgs e)
         {
-            Log("Add time range clicked");
+            LoggingConfig.Log("Add time range clicked");
             try
             {
                 var dialog = new TimeRangeDialog();
@@ -102,24 +82,24 @@ namespace Iconrrousel.Main
                 if (dialog.ShowDialog() == true && dialog.Result != null)
                 {
                     _timeRanges.Add(dialog.Result);
-                    Log($"Time range added: {dialog.Result}");
+                    LoggingConfig.Log($"Time range added: {dialog.Result}");
                 }
             }
             catch (Exception ex)
             {
-                Log("Error adding time range", ex: ex);
+                LoggingConfig.Log("Error adding time range", ex: ex);
             }
         }
 
         private void RemoveTimeRange_Click(object sender, RoutedEventArgs e)
         {
-            Log("Remove time range clicked");
+            LoggingConfig.Log("Remove time range clicked");
             try
             {
                 if (TimeRangesListBox.SelectedItem is TimeRange selected)
                 {
                     _timeRanges.Remove(selected);
-                    Log($"Time range removed: {selected}");
+                    LoggingConfig.Log($"Time range removed: {selected}");
                 }
                 else
                 {
@@ -128,13 +108,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error removing time range", ex: ex);
+                LoggingConfig.Log("Error removing time range", ex: ex);
             }
         }
 
         private void DeleteAllIcons_Click(object sender, RoutedEventArgs e)
         {
-            Log("Delete all icons clicked");
+            LoggingConfig.Log("Delete all icons clicked");
             try
             {
                 DialogResult result = MessageBox.Show(
@@ -146,52 +126,32 @@ namespace Iconrrousel.Main
 
                 if (result == System.Windows.Forms.DialogResult.Yes)
                 {
-                    App.IconService.DeleteAllIcons();
+                    if (System.Windows.Application.Current.MainWindow is MainWindow mainWindow)
+                    {
+                        mainWindow.DeleteAllIcons();
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Log("Error deleting all icons", ex: ex);
+                LoggingConfig.Log("Error deleting all icons", ex: ex);
             }
         }
-
-        private int getWindowSizeFromString(string size)
-        {
-            Log($"Converting window size from string: {size}");
-            switch (size)
-            {
-                case "Small":
-                    return 0;
-                case "Medium":
-                default:
-                    return 1;
-                case "Large":
-                    return 2;
-                case "ExtraLarge":
-                    return 3;
-            }
-        }
-
 
         private void SaveChanges()
         {
-            Log("Saving changes");
+            LoggingConfig.Log("Saving changes");
             try
             {
                 var selected = RadioStack.Children
                     .OfType<System.Windows.Controls.RadioButton>()
                     .FirstOrDefault(r => r.IsChecked == true);
 
-                if (selected != null)
-                {
-                    string value = selected.Tag.ToString(); // Small / Medium / Large
-                }
-
                 SettingsFields settings = new SettingsFields(
                     (bool)StartUpCbox.IsChecked,
                     (bool)NamesCbox.IsChecked,
                     (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex,
-                    (SettingsFields.WindowSizeOption)getWindowSizeFromString(selected.Tag.ToString()),
+                    (SettingsFields.WindowSizeOption)Enum.Parse(typeof(SettingsFields.WindowSizeOption), selected.Tag.ToString()),
                     _timeRanges.ToList());
 
                 SaveSettings(settings);
@@ -199,13 +159,13 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error saving changes", ex: ex);
+                LoggingConfig.Log("Error saving changes", ex: ex);
             }
         }
 
         private void CloseWin_Click(object sender, RoutedEventArgs e)
         {
-            Log("Close window clicked");
+            LoggingConfig.Log("Close window clicked");
             try
             {
                 DialogResult result = MessageBox.Show(
@@ -224,42 +184,42 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error closing window", ex: ex);
+                LoggingConfig.Log("Error closing window", ex: ex);
             }
         }
 
         private void CloseApp_Click(object sender, RoutedEventArgs e)
         {
-            Log("Close application clicked");
+            LoggingConfig.Log("Close application clicked");
             try
             {
                 System.Windows.Application.Current.Shutdown();
             }
             catch (Exception ex)
             {
-                Log("Error closing application", ex: ex);
+                LoggingConfig.Log("Error closing application", ex: ex);
             }
         }
 
         public void SaveSettings(SettingsFields settings)
         {
-            Log("Saving settings to disk");
+            LoggingConfig.Log("Saving settings to disk");
             try
             {
                 string json = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText(Path.Combine(AppPaths.DataDir,_CONFIG_FILE), json);
+                File.WriteAllText(Path.Combine(AppPaths.DataDir, AppPaths.SettingsFileName), json);
                 _settings = settings;
                 SetStartup(settings._startup);
             }
             catch (Exception ex)
             {
-                Log("Error saving settings", ex: ex);
+                LoggingConfig.LogAndNotify("No se pudieron guardar los cambios de configuracion.", ex);
             }
         }
 
         public void SetStartup(bool enable)
         {
-            Log($"Setting startup to {(enable ? "enabled" : "disabled")}");
+            LoggingConfig.Log($"Setting startup to {(enable ? "enabled" : "disabled")}");
             try
             {
                 const string appName = "Iconroussel";
@@ -276,19 +236,19 @@ namespace Iconrrousel.Main
             }
             catch (Exception ex)
             {
-                Log("Error setting startup", ex: ex);
+                LoggingConfig.Log("Error setting startup", ex: ex);
             }
         }
 
         public SettingsFields GetSettings()
         {
-            Log("Getting settings object");
+            LoggingConfig.Log("Getting settings object");
             return _settings;
         }
 
         private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Log("Theme selection changed");
+            LoggingConfig.Log("Theme selection changed");
         }
     }
 }

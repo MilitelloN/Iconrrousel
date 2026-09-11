@@ -44,12 +44,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CustomMarshalers" />
-    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.WindowsAPICodePack.Core.1.1.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.WindowsAPICodePack.Shell.1.1.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -79,7 +73,6 @@
     <Compile Include="ConfigurationTools\SettingsFields.cs" />
     <Compile Include="ConfigurationTools\TimeRange.cs" />
     <Compile Include="ConfigurationTools\UIConfiguration.cs" />
-    <Compile Include="Services\TimeRangeService.cs" />
     <Compile Include="Views\TimeRangeDialog.xaml.cs">
       <DependentUpon>TimeRangeDialog.xaml</DependentUpon>
     </Compile>
@@ -97,7 +90,6 @@
     </Compile>
     <Compile Include="Converters\ShowNamesToSizeConverter.cs" />
     <Compile Include="Services\IconExtractor.cs" />
-    <Compile Include="Services\IconService.cs" />
     <Compile Include="Views\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
