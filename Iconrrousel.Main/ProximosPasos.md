@@ -1,7 +1,13 @@
-﻿# Pantalla de configuracion:
+﻿# 1) Actualizar runtime: Net framework 4.8 a NET CORE
 
--- La pantalla de configuracion tiene que tener un path (detectado o no) hacia las carpetas de juegos y clasificar el juego por su plataforma
--- Orientacion horitonzal o vertical. La expancion actua acorde a la orientacion.
+# 2) Correcciones
+
+-- Se detecto un bug cuando se usa en una pantalla que no tiene la misma resolucion: No se centra bien en la pantalla y queda desplazado.
+
+# 3) Pantalla de configuracion:
+
+-- La pantalla de configuracion tiene que tener un path (detectado o no) hacia las carpetas donde estan los juegos (no de los juegos) y clasificar el juego por su plataforma. Es decir, detectar la ruta generica de steam "..\common" donde estan todos los juegos, buscar los .exe y clasificarlos como "steam", luego hacer lo mismo para las otras plataformas.
+-- Cambiar la orientacion de horitonzal a vertical. La expansion actua acorde a la orientacion.
 -- En la configuracion se puede decidir si se ancla arriba o abajo (OH) o derecha/izquierda (OV).
 
 # Menu contextual del icono (Boton derecho)
@@ -23,7 +29,3 @@ Xbox: Verde
 Gog: Violeta
 EA: Naranja
 -- Boton de filtros: - Filtrar por plataforma - Mostrar ultimos 5 jugados
-
-# Correcciones
-
--- Se detecto un bug en la notebook: No se centra bien en la pantalla y queda desplazado.
