@@ -3,6 +3,7 @@
 # 2) Correcciones
 
 -- Se detecto un bug cuando se usa en una pantalla que no tiene la misma resolucion: No se centra bien en la pantalla y queda desplazado.
+**** DEBERIA ESTAR SOLUCIONADO.
 
 # 3) Pantalla de configuracion:
 

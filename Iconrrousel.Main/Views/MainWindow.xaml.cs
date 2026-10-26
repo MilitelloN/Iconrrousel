@@ -200,7 +200,7 @@ namespace Iconrrousel.Main
                 double screenLeft = screen.WorkingArea.Left;
                 double screenTop = screen.WorkingArea.Top;
 
-                Left = screenLeft + (screenWidth - ActualWidth) / 2;
+                Left = screenLeft + screenWidth / 2 - ActualWidth / 2;
                 Top = screenTop;
             }
             catch (Exception ex)
