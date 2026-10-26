@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -223,7 +222,7 @@ namespace Iconrrousel.Main
             try
             {
                 const string appName = "Iconroussel";
-                string exePath = Assembly.GetExecutingAssembly().Location;
+                string exePath = Environment.ProcessPath;
 
                 using (var key = Registry.CurrentUser.OpenSubKey(
                     @"Software\Microsoft\Windows\CurrentVersion\Run", true))
