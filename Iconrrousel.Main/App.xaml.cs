@@ -120,51 +120,45 @@ namespace Iconrrousel.Main
         public static SharedData Data { get; } = new SharedData();
     }
 
-    // Logging compartido por toda la app - antes cada clase (MainWindow,
-    // SettingsWindow, TimeRangeDialog, etc.) tenia su propia copia identica de
-    // este mismo metodo Log(); ahora hay una sola implementacion.
+    // Logging compartido por toda la app. Escribe a %APPDATA%\Iconrousel\log.txt:
+    // antes iba al EventLog de Windows, que necesita admin para crear el source,
+    // y sin admin se reintentaba (SourceExists + excepcion) en cada Log().
+    // Los mensajes informativos solo se escriben en Debug; los errores siempre.
     public static class LoggingConfig
     {
-        private static bool _configured;
+        private const long MaxLogBytes = 1024 * 1024;
         private static readonly object _lock = new object();
-
-        public static void EnsureConfigured()
-        {
-            if (_configured) return;
-
-            lock (_lock)
-            {
-                if (_configured) return;
-                try
-                {
-                    Trace.AutoFlush = true;
-                    const string source = "Iconrousel";
-                    const string logName = "Application";
-
-                    if (!EventLog.SourceExists(source))
-                    {
-                        EventLog.CreateEventSource(source, logName);
-                    }
-
-                    Trace.Listeners.Add(new EventLogTraceListener(source));
-                    _configured = true;
-                }
-                catch
-                {
-                    // do not throw if event log configuration fails
-                }
-            }
-        }
+        private static readonly string _logFile = Path.Combine(AppPaths.DataDir, "log.txt");
 
         public static void Log(string message, [CallerMemberName] string caller = null, Exception ex = null)
         {
-            EnsureConfigured();
-            var baseMsg = $"[{DateTime.Now:O}] {caller}: {message}";
+#if !DEBUG
+            if (ex == null) return;
+#endif
+            var line = $"[{DateTime.Now:O}] {caller}: {message}";
             if (ex != null)
             {
-                baseMsg += $" | Exception: {ex}";
+                line += $" | Exception: {ex}";
             }
-            Trace.WriteLine(baseMsg);
+            Debug.WriteLine(line);
+
+            lock (_lock)
+            {
+                try
+                {
+                    // Rotacion simple para que el archivo no crezca sin limite.
+                    var info = new FileInfo(_logFile);
+                    if (info.Exists && info.Length > MaxLogBytes)
+                    {
+                        File.Move(_logFile, _logFile + ".old", true);
+                    }
+                    File.AppendAllText(_logFile, line + Environment.NewLine);
+                }
+                catch
+                {
+                    // el logging nunca debe tirar la app
+                }
+            }
         }
 
         // Para errores que le importan al usuario (persistencia de configuracion/

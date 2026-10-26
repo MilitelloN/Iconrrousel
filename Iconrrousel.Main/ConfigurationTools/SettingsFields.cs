@@ -32,6 +32,8 @@ namespace Iconrrousel.Main.Configuration
         public bool _displayNames { get; set; }
         public WindowSizeOption _windowSizeOption { get; set; }
         public List<TimeRange> _timeRanges { get; set; }
+        // Hash del PIN que protege los rangos horarios (ver PinLock). null = sin PIN.
+        public string _pinHash { get; set; }
 
         public SettingsFields()
         {
@@ -42,13 +44,14 @@ namespace Iconrrousel.Main.Configuration
             _timeRanges = new List<TimeRange>();
         }
 
-        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption, List<TimeRange> timeRanges)
+        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption, List<TimeRange> timeRanges, string pinHash)
         {
             _startup = startup;
             _displayNames = displayNames;
             _themeOption = theme;
             _windowSizeOption = windowSizeOption;
             _timeRanges = timeRanges ?? new List<TimeRange>();
+            _pinHash = pinHash;
         }
     }
 }

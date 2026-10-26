@@ -24,6 +24,9 @@ namespace Iconrrousel.Main
     {
         private SettingsFields _settings;
         private ObservableCollection<TimeRange> _timeRanges;
+        private string _pinHash;
+        // Se pide el PIN una sola vez por apertura de la ventana.
+        private bool _pinUnlocked;
 
         public SettingsWindow()
         {
@@ -48,6 +51,11 @@ namespace Iconrrousel.Main
             LoggingConfig.Log("Applying settings to UI");
             try
             {
+                // Primero el PIN: si algo de abajo falla, no queda en null
+                // (eso permitiria crear uno nuevo y pisar el guardado).
+                _pinHash = settings._pinHash;
+                _pinUnlocked = false;
+
                 StartUpCbox.IsChecked = settings._startup;
                 NamesCbox.IsChecked = settings._displayNames;
                 var radButton = RadioStack.Children
@@ -76,6 +84,9 @@ namespace Iconrrousel.Main
             LoggingConfig.Log("Add time range clicked");
             try
             {
+                if (!EnsurePinUnlocked())
+                    return;
+
                 var dialog = new TimeRangeDialog();
                 dialog.Owner = this;
                 if (dialog.ShowDialog() == true && dialog.Result != null)
@@ -97,6 +108,9 @@ namespace Iconrrousel.Main
             {
                 if (TimeRangesListBox.SelectedItem is TimeRange selected)
                 {
+                    if (!EnsurePinUnlocked())
+                        return;
+
                     _timeRanges.Remove(selected);
                     LoggingConfig.Log($"Time range removed: {selected}");
                 }
@@ -109,6 +123,32 @@ namespace Iconrrousel.Main
             {
                 LoggingConfig.Log("Error removing time range", ex: ex);
             }
+        }
+
+        // Si todavia no hay PIN, lo crea (el primer cambio de rangos lo define);
+        // si ya hay, lo pide. Devuelve false si el usuario cancela o se equivoca.
+        private bool EnsurePinUnlocked()
+        {
+            if (_pinUnlocked)
+                return true;
+
+            bool createMode = string.IsNullOrEmpty(_pinHash);
+            var dialog = new PinDialog(createMode) { Owner = this };
+            if (dialog.ShowDialog() != true)
+                return false;
+
+            if (createMode)
+            {
+                _pinHash = PinLock.CreateHash(dialog.Pin);
+            }
+            else if (!PinLock.Verify(dialog.Pin, _pinHash))
+            {
+                MessageBox.Show("PIN incorrecto", "Iconroussel", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            _pinUnlocked = true;
+            return true;
         }
 
         private void DeleteAllIcons_Click(object sender, RoutedEventArgs e)
@@ -151,7 +191,8 @@ namespace Iconrrousel.Main
                     (bool)NamesCbox.IsChecked,
                     (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex,
                     (SettingsFields.WindowSizeOption)Enum.Parse(typeof(SettingsFields.WindowSizeOption), selected.Tag.ToString()),
-                    _timeRanges.ToList());
+                    _timeRanges.ToList(),
+                    _pinHash);
 
                 SaveSettings(settings);
                 App.Data.UpdateMainWindow(settings);

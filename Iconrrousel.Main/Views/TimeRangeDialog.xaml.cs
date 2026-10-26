@@ -52,6 +52,12 @@ namespace Iconrrousel.Main
 
                 var startTime = new TimeSpan(startHour, startMinute, 0);
                 var endTime = new TimeSpan(endHour, endMinute, 0);
+                if (startTime == endTime)
+                {
+                    System.Windows.Forms.MessageBox.Show("Start and end time can not be the same", "Invalid Input", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Warning);
+                    return;
+                }
+
                 Result = new TimeRange(startTime, endTime);
                 DialogResult = true;
                 Close();

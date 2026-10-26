@@ -76,6 +76,9 @@ namespace Iconrrousel.Main
         #endregion
 
         List<string> _paths = new List<string>();
+        // Rutas guardadas que no se pudieron cargar (ej. disco del juego desconectado).
+        // No se muestran, pero se siguen guardando en Paths.json para no perderlas.
+        private List<string> _skippedPaths = new List<string>();
         // Un Button persistente por icono, en el mismo orden que _paths. UpdateIconLayout
         // decide cuales de estos entran en IconsPanel.Children (los de la pagina actual
         // nomas, sea colapsado o expandido) - moverlos entre paneles no los destruye, asi
@@ -106,18 +109,36 @@ namespace Iconrrousel.Main
                 try
                 {
                     var json = File.ReadAllText(Path.Combine(AppPaths.DataDir, _PATHS_FILE));
-                    var items = JsonConvert.DeserializeObject<List<string>>(json);
+                    var items = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
                     items.Sort(CompareByDisplayName);
 
                     foreach (var item in items)
                     {
-                        _paths.Add(item);
-                        _iconButtons.Add((Button)getButton(item));
+                        try
+                        {
+                            var b = (Button)getButton(item);
+                            _paths.Add(item);
+                            _iconButtons.Add(b);
+                        }
+                        catch (Exception ex)
+                        {
+                            _skippedPaths.Add(item);
+                            LoggingConfig.Log($"Icono omitido: {item}", ex: ex);
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    LoggingConfig.LogAndNotify("No se pudieron cargar los iconos guardados.", ex);
+                    // El proximo updateJson() pisa el archivo: se guarda una copia antes.
+                    try
+                    {
+                        File.Copy(Path.Combine(AppPaths.DataDir, _PATHS_FILE), Path.Combine(AppPaths.DataDir, _PATHS_FILE + ".bak"), true);
+                    }
+                    catch (Exception copyEx)
+                    {
+                        LoggingConfig.Log("No se pudo respaldar Paths.json", ex: copyEx);
+                    }
+                    LoggingConfig.LogAndNotify("No se pudieron cargar los iconos guardados. Se guardo una copia en Paths.json.bak.", ex);
                 }
             }
 
@@ -569,7 +590,7 @@ namespace Iconrrousel.Main
             LoggingConfig.Log("Persisting paths to JSON");
             try
             {
-                string json = JsonConvert.SerializeObject(_paths, Newtonsoft.Json.Formatting.Indented);
+                string json = JsonConvert.SerializeObject(_paths.Concat(_skippedPaths), Newtonsoft.Json.Formatting.Indented);
                 File.WriteAllText(Path.Combine(AppPaths.DataDir, _PATHS_FILE), json);
             }
             catch (Exception ex)
@@ -596,28 +617,31 @@ namespace Iconrrousel.Main
         private void updatePaths(string[] filesDropped)
         {
             LoggingConfig.Log($"Updating paths with {filesDropped?.Length ?? 0} items");
-            try
+
+            bool added = false;
+            foreach (var path in filesDropped)
             {
-                bool added = false;
-                foreach (var path in filesDropped)
+                try
                 {
                     if (_paths.Contains(path))
                         continue;
-
+                    var b = (Button)getButton(path);
                     _paths.Add(path);
-                    _iconButtons.Add((Button)getButton(path));
+                    _iconButtons.Add(b);
+                    _skippedPaths.Remove(path);
                     added = true;
                 }
-
-                if (added)
+                catch (Exception ex)
                 {
-                    SortPathsAndButtons();
+                    LoggingConfig.Log($"Failed updating path for {path}", ex: ex);
                 }
             }
-            catch (Exception ex)
+
+            if (added)
             {
-                LoggingConfig.Log("Error updating paths", ex: ex);
+                SortPathsAndButtons();
             }
+
         }
 
         // _iconButtons[i] tiene que seguir correspondiendo a _paths[i] (UpdateIconLayout
@@ -672,6 +696,7 @@ namespace Iconrrousel.Main
             try
             {
                 _paths.Clear();
+                _skippedPaths.Clear();
                 IconExtractor.ClearCache();
                 updateJson();
                 updatePanel();

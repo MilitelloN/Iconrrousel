@@ -23,11 +23,11 @@ namespace Iconrrousel.Main.Configuration
         {
             if (EndTime > StartTime)
             {
-                return currentTime >= StartTime && currentTime <= EndTime;
+                return currentTime >= StartTime && currentTime < EndTime;
             }
             else
             {
-                return currentTime >= StartTime || currentTime <= EndTime;
+                return currentTime >= StartTime || currentTime < EndTime;
             }
         }
 
