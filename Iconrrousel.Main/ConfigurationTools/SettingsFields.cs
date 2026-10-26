@@ -16,7 +16,9 @@ namespace Iconrrousel.Main.Configuration
             Beige,
             Blue,
             Pink,
-            Red 
+            Red,
+            // Paleta generada a partir de _customColor (ver ThemePalette).
+            Custom
         }
 
         public enum WindowSizeOption
@@ -34,6 +36,8 @@ namespace Iconrrousel.Main.Configuration
         public List<TimeRange> _timeRanges { get; set; }
         // Hash del PIN que protege los rangos horarios (ver PinLock). null = sin PIN.
         public string _pinHash { get; set; }
+        // Color base del tema Custom, en hex "#RRGGBB".
+        public string _customColor { get; set; }
 
         public SettingsFields()
         {
@@ -42,9 +46,10 @@ namespace Iconrrousel.Main.Configuration
             _themeOption = ThemeOption.Dark;
             _windowSizeOption = WindowSizeOption.Medium;
             _timeRanges = new List<TimeRange>();
+            _customColor = ThemePalette.ToHex(ThemePalette.DefaultBaseColor);
         }
 
-        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption, List<TimeRange> timeRanges, string pinHash)
+        public SettingsFields(bool startup, bool displayNames, ThemeOption theme, WindowSizeOption windowSizeOption, List<TimeRange> timeRanges, string pinHash, string customColor)
         {
             _startup = startup;
             _displayNames = displayNames;
@@ -52,6 +57,7 @@ namespace Iconrrousel.Main.Configuration
             _windowSizeOption = windowSizeOption;
             _timeRanges = timeRanges ?? new List<TimeRange>();
             _pinHash = pinHash;
+            _customColor = customColor;
         }
     }
 }

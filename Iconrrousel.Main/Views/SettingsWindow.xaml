@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Iconrrousel.Main"
         mc:Ignorable="d"
-        Title="Settings" Height="550" Width="336"
+        Title="Settings" Height="590" Width="336"
         Background="{Binding BorderBackground, Source={x:Static local:App.Data}}">
     <Window.Resources>
         <Style x:Key="SettingsButton" TargetType="Button">
@@ -29,7 +29,7 @@
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Background" Value="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"/>
-                                <Setter Property="Foreground" Value="#888" />
+                                <Setter Property="Foreground" Value="{Binding DisabledForeground, Source={x:Static local:App.Data}}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -52,7 +52,7 @@
                     <Setter TargetName="Bg" Property="Background" Value="{Binding TopButtonPressed, Source={x:Static local:App.Data}}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName="Arrow" Property="Fill" Value="#888" />
+                    <Setter TargetName="Arrow" Property="Fill" Value="{Binding DisabledForeground, Source={x:Static local:App.Data}}" />
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -105,7 +105,7 @@
                                 <Setter TargetName="DropDownBorder" Property="MinHeight" Value="114" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#888" />
+                                <Setter Property="Foreground" Value="{Binding DisabledForeground, Source={x:Static local:App.Data}}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -168,7 +168,29 @@
                             <ComboBoxItem Content="Blue theme" />
                             <ComboBoxItem Content="Pink theme" />
                             <ComboBoxItem Content="Red theme" />
+                            <ComboBoxItem Content="Custom color" />
                         </ComboBox>
+                        <!-- Color base del tema: los predefinidos lo completan solos; editarlo pasa a "Custom color" (ver ThemePalette). -->
+                        <StackPanel x:Name="CustomColorPanel" Orientation="Horizontal" Margin="0,4">
+                            <Button x:Name="CustomColorButton" Width="28" Height="28" Margin="0,0,7,0" Click="PickCustomColor_Click" ToolTip="Pick a color" Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="swatch" Background="{TemplateBinding Background}" CornerRadius="8"
+                                                BorderBrush="{Binding IconTextForeground, Source={x:Static local:App.Data}}" BorderThickness="1" />
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="swatch" Property="BorderThickness" Value="2" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <TextBox x:Name="CustomColorText" Width="90" Height="28" VerticalContentAlignment="Center" Padding="5,0" MaxLength="7"
+                                     Background="{Binding TopButtonBackground, Source={x:Static local:App.Data}}"
+                                     Foreground="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
+                                     CaretBrush="{Binding TopButtonForeground, Source={x:Static local:App.Data}}"
+                                     BorderThickness="0" TextChanged="CustomColorText_TextChanged" />
+                        </StackPanel>
                     </StackPanel>
                 </GroupBox>
 
@@ -199,7 +221,10 @@
                         <Button Content="Delete all icons" Width="120" Height="34" Click="DeleteAllIcons_Click" Margin="0,0,7,0" Style="{StaticResource SettingsButton}" />
                         <Button Content="Save" Width="120" Height="34" Click="CloseWin_Click" Style="{StaticResource SettingsButton}" />
                     </StackPanel>
-                    <Button Content="Close application" Width="168" Height="34" Click="CloseApp_Click" Style="{StaticResource SettingsButton}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Descartar" Width="120" Height="34" Click="Discard_Click" Margin="0,0,7,0" Style="{StaticResource SettingsButton}" ToolTip="Discard unsaved changes" />
+                        <Button Content="Close application" Width="120" Height="34" Click="CloseApp_Click" Style="{StaticResource SettingsButton}" />
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </ScrollViewer>

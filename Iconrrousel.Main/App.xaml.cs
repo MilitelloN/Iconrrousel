@@ -184,23 +184,30 @@ namespace Iconrrousel.Main
         private int _themeSelected;
         private int _windowSizeSelected;
 
-        private Brush _scrollButtonBackground = UIConfiguration.ThemeColors.ScrollButtonBackgroundBrush;
-        private Brush _scrollButtonHover = UIConfiguration.ThemeColors.ScrollButtonHoverBrush;
-        private Brush _scrollButtonPressed = UIConfiguration.ThemeColors.ScrollButtonPressedBrush;
-        private Brush _scrollButtonForeground = UIConfiguration.ThemeColors.ScrollButtonForegroundBrush;
+        // Los colores se cargan en el constructor (ApplyTheme con el tema por defecto).
+        private Brush _scrollButtonBackground;
+        private Brush _scrollButtonHover;
+        private Brush _scrollButtonPressed;
+        private Brush _scrollButtonForeground;
 
-        private Brush _topButtonBackground = UIConfiguration.ThemeColors.TopButtonBackgroundBrush;
-        private Brush _topButtonHover = UIConfiguration.ThemeColors.TopButtonHoverBrush;
-        private Brush _topButtonPressed = UIConfiguration.ThemeColors.TopButtonPressedBrush;
-        private Brush _topButtonForeground = UIConfiguration.ThemeColors.TopButtonForegroundBrush;
+        private Brush _topButtonBackground;
+        private Brush _topButtonHover;
+        private Brush _topButtonPressed;
+        private Brush _topButtonForeground;
 
-        private Brush _borderBackground = UIConfiguration.ThemeColors.BorderBackgroundBrush;
-        private Color _shadowColor = UIConfiguration.ThemeColors.ShadowColor;
-        private Brush _iconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
-        private Brush _comboItemForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
+        private Brush _borderBackground;
+        private Color _shadowColor;
+        private Brush _iconTextForeground;
+        private Brush _comboItemForeground;
+        private Brush _disabledForeground;
         private double _windowMaxWidth = 600;
         private double _iconViewerWidth = 500;
         private int _visibleIconCount = 5;
+
+        public SharedData()
+        {
+            ApplyTheme(SettingsFields.ThemeOption.Dark, null);
+        }
 
         public bool ShowIconNames
         {
@@ -292,6 +299,13 @@ namespace Iconrrousel.Main
             set => Set(ref _comboItemForeground, value);
         }
 
+        // Texto/iconos de controles deshabilitados.
+        public Brush DisabledForeground
+        {
+            get => _disabledForeground;
+            set => Set(ref _disabledForeground, value);
+        }
+
         public double WindowMaxWidth
         {
             get => _windowMaxWidth;
@@ -372,7 +386,7 @@ namespace Iconrrousel.Main
                 ThemeSelected = (int)settings._themeOption;
                 WindowSizeSelected = (int)settings._windowSizeOption;
                 TimeRanges = settings._timeRanges ?? new List<TimeRange>();
-                ApplyTheme(settings._themeOption);
+                ApplyTheme(settings._themeOption, settings._customColor);
                 ApplyWindowSize(settings._windowSizeOption);
             }
             catch (Exception ex)
@@ -381,7 +395,9 @@ namespace Iconrrousel.Main
             }
         }
 
-        private void ApplyTheme(SettingsFields.ThemeOption theme)
+        // Publico para que la ventana de configuracion pueda previsualizar el tema
+        // en vivo antes de guardarlo.
+        public void ApplyTheme(SettingsFields.ThemeOption theme, string customColor)
         {
             LoggingConfig.Log($"Applying theme {theme}");
             try
@@ -393,111 +409,24 @@ namespace Iconrrousel.Main
                     return brush;
                 }
 
-                switch (theme)
-                {
-                    case SettingsFields.ThemeOption.Light:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x00, 0x00, 0x00));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x11, 0x11, 0x11));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x33, 0x33, 0x33));
-                        ScrollButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x22, 0x22, 0x22));
+                Color baseColor = UIConfiguration.ThemeColors.GetBaseColor(theme, customColor);
+                var palette = ThemePalette.FromBaseColor(baseColor);
 
-                        TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x2A, 0x00, 0x00, 0x00));
-                        TopButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x3A, 0x00, 0x00, 0x00));
-                        TopButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x55, 0x00, 0x00, 0x00));
-                        TopButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x22, 0x22, 0x22));
+                ScrollButtonBackground = CreateAndFreezeBrush(palette.ScrollButtonBackground);
+                ScrollButtonHover = CreateAndFreezeBrush(palette.ScrollButtonHover);
+                ScrollButtonPressed = CreateAndFreezeBrush(palette.ScrollButtonPressed);
+                ScrollButtonForeground = CreateAndFreezeBrush(palette.ScrollButtonForeground);
 
-                        BorderBackground = CreateAndFreezeBrush(Color.FromArgb(0xF2, 0xFF, 0xFF, 0xFF));
-                        ShadowColor = Color.FromArgb(0x33, 0x00, 0x00, 0x00);
-                        IconTextForeground = CreateAndFreezeBrush(Color.FromRgb(0x22, 0x22, 0x22));
-                        ComboItemForeground = IconTextForeground;
-                        break;
+                TopButtonBackground = CreateAndFreezeBrush(palette.TopButtonBackground);
+                TopButtonHover = CreateAndFreezeBrush(palette.TopButtonHover);
+                TopButtonPressed = CreateAndFreezeBrush(palette.TopButtonPressed);
+                TopButtonForeground = CreateAndFreezeBrush(palette.TopButtonForeground);
 
-                    case SettingsFields.ThemeOption.Beige:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x4A, 0x39, 0x23));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x5A, 0x45, 0x28));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x6A, 0x50, 0x2D));
-                        ScrollButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x2E, 0x1F, 0x0B));
-
-                        TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x30, 0x68, 0x55, 0x3B));
-                        TopButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x44, 0x78, 0x63, 0x44));
-                        TopButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x60, 0x85, 0x6D, 0x4A));
-                        TopButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x2E, 0x1F, 0x0B));
-
-                        BorderBackground = CreateAndFreezeBrush(Color.FromArgb(0xF0, 0xF4, 0xEF, 0xE5));
-                        ShadowColor = Color.FromArgb(0x44, 0x3A, 0x2C, 0x19);
-                        IconTextForeground = CreateAndFreezeBrush(Color.FromRgb(0x2E, 0x1F, 0x0B));
-                        ComboItemForeground = IconTextForeground;
-                        break;
-
-                    case SettingsFields.ThemeOption.Blue:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x6B, 0xB6, 0xFF));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x5A, 0xA7, 0xE8));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0x4A, 0x94, 0xD1));
-                        ScrollButtonForeground = Brushes.White;
-
-                        TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x2E, 0x4A, 0x90, 0xC8));
-                        TopButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x40, 0x3E, 0x7F, 0xB3));
-                        TopButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x60, 0x36, 0x6F, 0x9C));
-                        TopButtonForeground = Brushes.White;
-
-                        BorderBackground = CreateAndFreezeBrush(Color.FromArgb(0xE0, 0x10, 0x2A, 0x4F));
-                        ShadowColor = Color.FromArgb(0x55, 0x10, 0x2A, 0x4F);
-                        IconTextForeground = Brushes.White;
-                        ComboItemForeground = IconTextForeground;
-                        break;
-
-                    case SettingsFields.ThemeOption.Pink:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xF5, 0xC1, 0xE8));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xEC, 0xB0, 0xDC));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xD9, 0x97, 0xC8));
-                        ScrollButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x3A, 0x1C, 0x2C));
-
-                        TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x30, 0xEA, 0xB5, 0xE1));
-                        TopButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x44, 0xD6, 0x9E, 0xCB));
-                        TopButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x60, 0xC3, 0x86, 0xB6));
-                        TopButtonForeground = CreateAndFreezeBrush(Color.FromRgb(0x3A, 0x1C, 0x2C));
-
-                        BorderBackground = CreateAndFreezeBrush(Color.FromArgb(0xE6, 0xF5, 0xE1, 0xEC));
-                        ShadowColor = Color.FromArgb(0x55, 0xA8, 0x65, 0x8B);
-                        IconTextForeground = CreateAndFreezeBrush(Color.FromRgb(0x3A, 0x1C, 0x2C));
-                        ComboItemForeground = IconTextForeground;
-                        break;
-
-                    case SettingsFields.ThemeOption.Red:
-                        ScrollButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xFF, 0x6B, 0x6B));
-                        ScrollButtonHover = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xE8, 0x58, 0x58));
-                        ScrollButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0xFF, 0xD1, 0x48, 0x48));
-                        ScrollButtonForeground = Brushes.White;
-
-                        TopButtonBackground = CreateAndFreezeBrush(Color.FromArgb(0x2E, 0xC7, 0x3D, 0x3D));
-                        TopButtonHover = CreateAndFreezeBrush(Color.FromArgb(0x40, 0xB0, 0x34, 0x34));
-                        TopButtonPressed = CreateAndFreezeBrush(Color.FromArgb(0x60, 0x98, 0x2D, 0x2D));
-                        TopButtonForeground = Brushes.White;
-
-                        BorderBackground = CreateAndFreezeBrush(Color.FromArgb(0xE6, 0x40, 0x12, 0x12));
-                        ShadowColor = Color.FromArgb(0x55, 0x40, 0x12, 0x12);
-                        IconTextForeground = Brushes.White;
-                        ComboItemForeground = IconTextForeground;
-                        break;
-
-                    case SettingsFields.ThemeOption.Dark:
-                    default:
-                        ScrollButtonBackground = UIConfiguration.ThemeColors.ScrollButtonBackgroundBrush;
-                        ScrollButtonHover = UIConfiguration.ThemeColors.ScrollButtonHoverBrush;
-                        ScrollButtonPressed = UIConfiguration.ThemeColors.ScrollButtonPressedBrush;
-                        ScrollButtonForeground = UIConfiguration.ThemeColors.ScrollButtonForegroundBrush;
-
-                        TopButtonBackground = UIConfiguration.ThemeColors.TopButtonBackgroundBrush;
-                        TopButtonHover = UIConfiguration.ThemeColors.TopButtonHoverBrush;
-                        TopButtonPressed = UIConfiguration.ThemeColors.TopButtonPressedBrush;
-                        TopButtonForeground = UIConfiguration.ThemeColors.TopButtonForegroundBrush;
-
-                        BorderBackground = UIConfiguration.ThemeColors.BorderBackgroundBrush;
-                        ShadowColor = UIConfiguration.ThemeColors.ShadowColor;
-                        IconTextForeground = UIConfiguration.ThemeColors.IconTextForegroundBrush;
-                        ComboItemForeground = IconTextForeground;
-                        break;
-                }
+                BorderBackground = CreateAndFreezeBrush(palette.BorderBackground);
+                ShadowColor = palette.ShadowColor;
+                IconTextForeground = CreateAndFreezeBrush(palette.TextForeground);
+                ComboItemForeground = IconTextForeground;
+                DisabledForeground = CreateAndFreezeBrush(palette.DisabledForeground);
             }
             catch (Exception ex)
             {

@@ -75,7 +75,7 @@
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Background" Value="Transparent"/>
-                                <Setter Property="Foreground" Value="#888" />
+                                <Setter Property="Foreground" Value="{Binding DisabledForeground, Source={x:Static local:App.Data}}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

@@ -27,6 +27,10 @@ namespace Iconrrousel.Main
         private string _pinHash;
         // Se pide el PIN una sola vez por apertura de la ventana.
         private bool _pinUnlocked;
+        // Color base del tema Custom elegido en esta ventana (aun sin guardar).
+        private string _customColor = ThemePalette.ToHex(ThemePalette.DefaultBaseColor);
+        // true mientras el codigo (no el usuario) escribe el hex en CustomColorText.
+        private bool _showingThemeColor;
 
         public SettingsWindow()
         {
@@ -35,6 +39,8 @@ namespace Iconrrousel.Main
             _timeRanges = new ObservableCollection<TimeRange>();
             InitializeComponent();
             TimeRangesListBox.ItemsSource = _timeRanges;
+            // El tema se previsualiza en vivo; si se cierra sin guardar, se vuelve al guardado.
+            Closed += (_, __) => RestoreSavedTheme();
             try
             {
                 SettingsFields settings = App.Data.LoadSettings();
@@ -55,6 +61,12 @@ namespace Iconrrousel.Main
                 // (eso permitiria crear uno nuevo y pisar el guardado).
                 _pinHash = settings._pinHash;
                 _pinUnlocked = false;
+                _settings = settings;
+
+                _customColor = ThemePalette.ToHex(
+                    ThemePalette.TryParseHex(settings._customColor, out Color customColor)
+                        ? customColor
+                        : ThemePalette.DefaultBaseColor);
 
                 StartUpCbox.IsChecked = settings._startup;
                 NamesCbox.IsChecked = settings._displayNames;
@@ -63,6 +75,8 @@ namespace Iconrrousel.Main
                     .FirstOrDefault(r => r.Tag.ToString() == settings._windowSizeOption.ToString())
                     .IsChecked = true;
                 ThemeCombo.SelectedIndex = (int)settings._themeOption;
+                // Si el indice no cambio, SelectionChanged no se dispara.
+                ShowThemeColor(settings._themeOption);
 
                 _timeRanges.Clear();
                 if (settings._timeRanges != null)
@@ -192,7 +206,8 @@ namespace Iconrrousel.Main
                     (SettingsFields.ThemeOption)ThemeCombo.SelectedIndex,
                     (SettingsFields.WindowSizeOption)Enum.Parse(typeof(SettingsFields.WindowSizeOption), selected.Tag.ToString()),
                     _timeRanges.ToList(),
-                    _pinHash);
+                    _pinHash,
+                    _customColor);
 
                 SaveSettings(settings);
                 App.Data.UpdateMainWindow(settings);
@@ -225,6 +240,25 @@ namespace Iconrrousel.Main
             catch (Exception ex)
             {
                 LoggingConfig.Log("Error closing window", ex: ex);
+            }
+        }
+
+        // Vuelve la ventana (y el tema previsualizado) al ultimo estado guardado,
+        // sin cerrarla.
+        private void Discard_Click(object sender, RoutedEventArgs e)
+        {
+            LoggingConfig.Log("Discard changes clicked");
+            try
+            {
+                if (_settings == null)
+                    return;
+
+                ApplySettings(_settings);
+                RestoreSavedTheme();
+            }
+            catch (Exception ex)
+            {
+                LoggingConfig.Log("Error discarding changes", ex: ex);
             }
         }
 
@@ -289,6 +323,81 @@ namespace Iconrrousel.Main
         private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             LoggingConfig.Log("Theme selection changed");
+            // Se dispara durante InitializeComponent, antes de que existan los demas controles.
+            if (!IsInitialized)
+                return;
+
+            if (ThemeCombo.SelectedIndex < 0)
+                return;
+
+            ShowThemeColor((SettingsFields.ThemeOption)ThemeCombo.SelectedIndex);
+            PreviewTheme();
+        }
+
+        // Muestra el color base del tema: el de un predefinido (acceso rapido, punto
+        // de partida para personalizarlo) o el ultimo color Custom elegido.
+        private void ShowThemeColor(SettingsFields.ThemeOption theme)
+        {
+            _showingThemeColor = true;
+            CustomColorText.Text = ThemePalette.ToHex(UIConfiguration.ThemeColors.GetBaseColor(theme, _customColor));
+            _showingThemeColor = false;
+        }
+
+        private void PickCustomColor_Click(object sender, RoutedEventArgs e)
+        {
+            LoggingConfig.Log("Pick custom color clicked");
+            try
+            {
+                ThemePalette.TryParseHex(_customColor, out Color current);
+                using (var dialog = new ColorDialog
+                {
+                    FullOpen = true,
+                    Color = System.Drawing.Color.FromArgb(current.R, current.G, current.B)
+                })
+                {
+                    if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        // Dispara CustomColorText_TextChanged, que aplica el color.
+                        CustomColorText.Text = ThemePalette.ToHex(Color.FromRgb(dialog.Color.R, dialog.Color.G, dialog.Color.B));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingConfig.Log("Error picking custom color", ex: ex);
+            }
+        }
+
+        private void CustomColorText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Mientras el hex este incompleto/invalido se mantiene el ultimo color valido.
+            if (!ThemePalette.TryParseHex(CustomColorText.Text, out Color color))
+                return;
+
+            CustomColorButton.Background = new SolidColorBrush(color);
+            if (_showingThemeColor)
+                return;
+
+            // El usuario cambio el color: pasa a ser el tema Custom.
+            _customColor = ThemePalette.ToHex(color);
+            if (ThemeCombo.SelectedIndex != (int)SettingsFields.ThemeOption.Custom)
+                ThemeCombo.SelectedIndex = (int)SettingsFields.ThemeOption.Custom; // dispara SelectionChanged, que previsualiza
+            else
+                PreviewTheme();
+        }
+
+        private void PreviewTheme()
+        {
+            if (ThemeCombo.SelectedIndex < 0)
+                return;
+
+            App.Data.ApplyTheme((SettingsFields.ThemeOption)ThemeCombo.SelectedIndex, _customColor);
+        }
+
+        private void RestoreSavedTheme()
+        {
+            if (_settings != null)
+                App.Data.ApplyTheme(_settings._themeOption, _settings._customColor);
         }
     }
 }

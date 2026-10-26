@@ -124,36 +124,28 @@ namespace Iconrrousel.Main
                 All.TryGetValue(option, out var tier) ? tier : All[Default];
         }
 
-        // Theme Colors Configuration
+        // Temas predefinidos: cada uno es solo un color base "de acceso rapido";
+        // la paleta completa se genera igual que en el tema Custom (ThemePalette).
         public static class ThemeColors
         {
-            public static readonly SolidColorBrush ScrollButtonBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x55, 0x55, 0x55));
-            public static readonly SolidColorBrush ScrollButtonHoverBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x66, 0x66, 0x66));
-            public static readonly SolidColorBrush ScrollButtonPressedBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x77, 0x77, 0x77));
-            public static readonly SolidColorBrush ScrollButtonForegroundBrush = Brushes.White;
+            public static readonly IReadOnlyDictionary<SettingsFields.ThemeOption, Color> PresetBaseColors =
+                new Dictionary<SettingsFields.ThemeOption, Color>
+                {
+                    { SettingsFields.ThemeOption.Dark, Color.FromRgb(0x55, 0x55, 0x55) },
+                    { SettingsFields.ThemeOption.Light, Color.FromRgb(0xFF, 0xFF, 0xFF) },
+                    { SettingsFields.ThemeOption.Beige, Color.FromRgb(0xD8, 0xC3, 0xA5) },
+                    { SettingsFields.ThemeOption.Blue, Color.FromRgb(0x4A, 0x90, 0xE2) },
+                    { SettingsFields.ThemeOption.Pink, Color.FromRgb(0xF5, 0xC1, 0xE8) },
+                    { SettingsFields.ThemeOption.Red, Color.FromRgb(0xE0, 0x48, 0x48) },
+                };
 
-            public static readonly SolidColorBrush TopButtonBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
-            public static readonly SolidColorBrush TopButtonHoverBrush = new SolidColorBrush(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF));
-            public static readonly SolidColorBrush TopButtonPressedBrush = new SolidColorBrush(Color.FromArgb(0x70, 0xFF, 0xFF, 0xFF));
-            public static readonly SolidColorBrush TopButtonForegroundBrush = Brushes.White;
-
-            public static readonly SolidColorBrush BorderBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xE0, 0x00, 0x00, 0x00));
-            public static readonly Color ShadowColor = Colors.Black;
-
-            public static readonly SolidColorBrush IconTextForegroundBrush = Brushes.White;
-
-            static ThemeColors()
+            // Color base del tema: el del predefinido, o el elegido si es Custom.
+            public static Color GetBaseColor(SettingsFields.ThemeOption theme, string customColor)
             {
-                ScrollButtonBackgroundBrush.Freeze();
-                ScrollButtonHoverBrush.Freeze();
-                ScrollButtonPressedBrush.Freeze();
-                ScrollButtonForegroundBrush.Freeze();
-                TopButtonBackgroundBrush.Freeze();
-                TopButtonHoverBrush.Freeze();
-                TopButtonPressedBrush.Freeze();
-                TopButtonForegroundBrush.Freeze();
-                BorderBackgroundBrush.Freeze();
-                IconTextForegroundBrush.Freeze();
+                if (PresetBaseColors.TryGetValue(theme, out var preset))
+                    return preset;
+
+                return ThemePalette.TryParseHex(customColor, out var custom) ? custom : ThemePalette.DefaultBaseColor;
             }
         }
     }
