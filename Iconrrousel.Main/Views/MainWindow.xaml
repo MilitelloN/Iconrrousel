@@ -68,10 +68,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding TopButtonHover, Source={x:Static local:App.Data}}"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding (local:PlatformHover.HoverBrush), RelativeSource={RelativeSource TemplatedParent}}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{Binding TopButtonPressed, Source={x:Static local:App.Data}}"/>
+                                <Setter TargetName="border" Property="Background" Value="{Binding (local:PlatformHover.PressedBrush), RelativeSource={RelativeSource TemplatedParent}}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Background" Value="Transparent"/>

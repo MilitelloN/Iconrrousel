@@ -90,6 +90,8 @@ namespace Iconrrousel.Main
         // expandido: hasta MaxExpandedRows x VisibleIconCount). Ya no hay scroll en
         // pixeles: los botones ScrollLeft/ScrollRight solo cambian esta pagina.
         private int _pageIndex = 0;
+        // Plataforma elegida en el boton Filtros (null = todas).
+        private GamePlatform? _platformFilter = null;
 
         private static readonly string[] _shortcutExtensions = { ".lnk", ".url" };
 
@@ -253,7 +255,8 @@ namespace Iconrrousel.Main
                     return;
                 }
 
-                int totalIcons = _iconButtons.Count;
+                var visibleButtons = GetFilteredButtons();
+                int totalIcons = visibleButtons.Count;
                 int visibleColumns = Math.Max(1, App.Data.VisibleIconCount);
                 int maxRows = _expanded ? UIConfiguration.IconGrid.MaxExpandedRows : 1;
                 int pageCapacity = maxRows * visibleColumns;
@@ -283,7 +286,7 @@ namespace Iconrrousel.Main
                 IconsPanel.Children.Clear();
                 for (int i = 0; i < pageCount; i++)
                 {
-                    IconsPanel.Children.Add(_iconButtons[pageStart + i]);
+                    IconsPanel.Children.Add(visibleButtons[pageStart + i]);
                 }
 
                 IconsPanel.Rows = rows;
@@ -302,11 +305,106 @@ namespace Iconrrousel.Main
             }
         }
 
+        private static GamePlatform GetPlatform(Button btn) => PlatformDetector.Detect(btn.Tag as string);
+
+        // Botones que pasan el filtro de plataforma, en el mismo orden que _iconButtons.
+        // Si la plataforma filtrada ya no tiene iconos (ej. se borro el ultimo), se
+        // vuelve a mostrar todo en vez de dejar la ventana vacia.
+        private List<Button> GetFilteredButtons()
+        {
+            if (_platformFilter == null)
+                return _iconButtons;
+
+            var filtered = _iconButtons.Where(b => GetPlatform(b) == _platformFilter).ToList();
+            if (filtered.Count > 0)
+                return filtered;
+
+            SetPlatformFilter(null);
+            return _iconButtons;
+        }
+
+        // Abre un menu debajo del boton con "Todas" + cada plataforma que tenga al
+        // menos un icono (con la cantidad), marcando el filtro actual.
         private void FiltrosButton_Click(object sender, RoutedEventArgs e)
         {
-            // Sin funcionalidad todavia (ver ProximosPasos.txt #4) - el boton
-            // solo necesita existir y estar en la posicion correcta por ahora.
-            LoggingConfig.Log("Filtros clicked (sin funcionalidad todavia)");
+            LoggingConfig.Log("Filtros clicked");
+            try
+            {
+                var menu = new ContextMenu
+                {
+                    PlacementTarget = FiltrosButton,
+                    Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom
+                };
+
+                menu.Items.Add(CreateFilterItem("Todas", null, _iconButtons.Count));
+                menu.Items.Add(new Separator());
+
+                var counts = _iconButtons
+                    .GroupBy(GetPlatform)
+                    .ToDictionary(g => g.Key, g => g.Count());
+                foreach (GamePlatform platform in Enum.GetValues(typeof(GamePlatform)))
+                {
+                    if (counts.TryGetValue(platform, out int count))
+                        menu.Items.Add(CreateFilterItem(PlatformDetector.DisplayName(platform), platform, count));
+                }
+
+                menu.IsOpen = true;
+            }
+            catch (Exception ex)
+            {
+                LoggingConfig.Log("Error opening filters menu", ex: ex);
+            }
+        }
+
+        private MenuItem CreateFilterItem(string name, GamePlatform? platform, int count)
+        {
+            var item = new MenuItem
+            {
+                Header = $"{name} ({count})",
+                IsCheckable = true,
+                IsChecked = _platformFilter == platform
+            };
+
+            if (platform.HasValue && UIConfiguration.PlatformColors.BrandColors.TryGetValue(platform.Value, out var color))
+            {
+                item.Icon = new System.Windows.Shapes.Ellipse
+                {
+                    Width = 10,
+                    Height = 10,
+                    Fill = new SolidColorBrush(color)
+                };
+            }
+
+            item.Click += (s, args) =>
+            {
+                LoggingConfig.Log($"Filtro de plataforma: {platform?.ToString() ?? "Todas"}");
+                SetPlatformFilter(platform);
+                _pageIndex = 0;
+                UpdateIconLayout();
+                CenterWindowOnTopOfScreen();
+            };
+            return item;
+        }
+
+        // Guarda el filtro y lo refleja en el boton: tooltip con la plataforma y
+        // fondo del color de la plataforma mientras haya un filtro activo.
+        private void SetPlatformFilter(GamePlatform? platform)
+        {
+            _platformFilter = platform;
+
+            if (platform.HasValue)
+            {
+                FiltrosButton.ToolTip = $"Filtros: {PlatformDetector.DisplayName(platform.Value)}";
+                if (UIConfiguration.PlatformColors.BrandColors.TryGetValue(platform.Value, out var color))
+                    FiltrosButton.Background = new SolidColorBrush(color);
+                else
+                    FiltrosButton.ClearValue(BackgroundProperty);
+            }
+            else
+            {
+                FiltrosButton.ToolTip = "Filtros";
+                FiltrosButton.ClearValue(BackgroundProperty);
+            }
         }
 
         private void ExpandirButton_Click(object sender, RoutedEventArgs e)
@@ -318,7 +416,7 @@ namespace Iconrrousel.Main
                 // 1 sola fila, expandir no cambiaria nada (misma cantidad de filas) - en
                 // ese caso no hace nada en vez de togglear el estado igual.
                 int visibleColumns = Math.Max(1, App.Data.VisibleIconCount);
-                if (!_expanded && _iconButtons.Count <= visibleColumns)
+                if (!_expanded && GetFilteredButtons().Count <= visibleColumns)
                 {
                     LoggingConfig.Log("Expandir: no corresponde (todos los iconos entran en 1 fila)");
                     return;
@@ -388,6 +486,9 @@ namespace Iconrrousel.Main
                 panel.Children.Add(img);
                 panel.Children.Add(nameBlock);
 
+                var platform = PlatformDetector.Detect(item);
+                var displayName = System.IO.Path.GetFileNameWithoutExtension(item);
+
                 var bttn = new Button
                 {
                     Style = (Style)FindResource("IconButtonStyle"),
@@ -398,9 +499,12 @@ namespace Iconrrousel.Main
                     MinHeight = UIConfiguration.Icon.ButtonHeight,
                     // El nombre debajo del icono se recorta con "..." (TextTrimming) para no
                     // romper el layout - el tooltip muestra el nombre completo sin recortar.
-                    ToolTip = System.IO.Path.GetFileNameWithoutExtension(item)
+                    ToolTip = platform == GamePlatform.None
+                        ? displayName
+                        : $"{displayName} ({PlatformDetector.DisplayName(platform)})"
                 };
 
+                PlatformHover.Apply(bttn, platform);
                 bttn.Click += IconButton_Click;
 
                 var menu = new ContextMenu();
@@ -475,6 +579,7 @@ namespace Iconrrousel.Main
                         }
                     }
                     IconExtractor.RemoveFromCache(item);
+                    PlatformDetector.Forget(item);
                     CleanupButton(bttn);
                     updateJson();
                     _pageIndex = 0;
@@ -522,6 +627,7 @@ namespace Iconrrousel.Main
                     panel.Children.Clear();
                 }
 
+                BindingOperations.ClearAllBindings(bttn);
                 bttn.Content = null;
                 bttn.Tag = null;
             }

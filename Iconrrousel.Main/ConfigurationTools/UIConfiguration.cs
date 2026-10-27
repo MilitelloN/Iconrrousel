@@ -148,5 +148,31 @@ namespace Iconrrousel.Main
                 return ThemePalette.TryParseHex(customColor, out var custom) ? custom : ThemePalette.DefaultBaseColor;
             }
         }
+
+        // Fondo del icono al pasar el mouse / presionarlo, segun la plataforma
+        // detectada (PlatformDetector). Sin plataforma se usa el hover del tema.
+        public static class PlatformColors
+        {
+            public static readonly IReadOnlyDictionary<GamePlatform, Color> BrandColors =
+                new Dictionary<GamePlatform, Color>
+                {
+                    { GamePlatform.Steam, Color.FromRgb(0x1A, 0x9F, 0xFF) }, // azul de la marca Steam
+                    { GamePlatform.Gog, Color.FromRgb(0x86, 0x32, 0x8A) },   // violeta GOG
+                    { GamePlatform.Epic, Color.FromRgb(0x12, 0x12, 0x12) },  // negro de Epic
+                    { GamePlatform.EA, Color.FromRgb(0xF5, 0x6C, 0x2D) },    // naranja EA/Origin
+                    { GamePlatform.Xbox, Color.FromRgb(0x10, 0x7C, 0x10) },  // verde Xbox
+                };
+
+            public const byte HoverAlpha = 0x70;
+            public const byte PressedAlpha = 0xA0;
+
+            // Plataformas que necesitan otra opacidad: el negro de Epic casi no se
+            // distingue sobre el tema oscuro con la opacidad general.
+            public static readonly IReadOnlyDictionary<GamePlatform, (byte Hover, byte Pressed)> AlphaOverrides =
+                new Dictionary<GamePlatform, (byte Hover, byte Pressed)>
+                {
+                    { GamePlatform.Epic, (0xB0, 0xD8) },
+                };
+        }
     }
 }
