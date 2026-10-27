@@ -466,10 +466,13 @@ namespace Iconrrousel.Main
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "Iconrousel");
+        public static string ShortcutsDir { get; } = Path.Combine(DataDir, "Shortcuts");
+
 
         static AppPaths()
         {
             Directory.CreateDirectory(DataDir);
+            Directory.CreateDirectory(ShortcutsDir);
         }
     }
 }

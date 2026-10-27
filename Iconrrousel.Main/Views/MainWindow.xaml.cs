@@ -91,6 +91,8 @@ namespace Iconrrousel.Main
         // pixeles: los botones ScrollLeft/ScrollRight solo cambian esta pagina.
         private int _pageIndex = 0;
 
+        private static readonly string[] _shortcutExtensions = { ".lnk", ".url" };
+
         public MainWindow()
         {
             LoggingConfig.Log("Initializing MainWindow");
@@ -111,21 +113,31 @@ namespace Iconrrousel.Main
                     var json = File.ReadAllText(Path.Combine(AppPaths.DataDir, _PATHS_FILE));
                     var items = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
                     items.Sort(CompareByDisplayName);
+                    bool migrated = false;
 
-                    foreach (var item in items)
+                    foreach (var original in items)
                     {
+                        var item = original;
                         try
                         {
+                        if(File.Exists(item)){
+                                var adopted = AdoptShortcut(item);
+                                migrated |= adopted != item;
+                                item = adopted;
+                        }
                             var b = (Button)getButton(item);
                             _paths.Add(item);
                             _iconButtons.Add(b);
                         }
                         catch (Exception ex)
                         {
-                            _skippedPaths.Add(item);
-                            LoggingConfig.Log($"Icono omitido: {item}", ex: ex);
+                            _skippedPaths.Add(original);
+                            LoggingConfig.Log($"Icono omitido: {original}", ex: ex);
                         }
                     }
+
+                    if (migrated)
+                        updateJson();
                 }
                 catch (Exception ex)
                 {
@@ -451,6 +463,17 @@ namespace Iconrrousel.Main
                 {
                     _paths.Remove(item);
                     _iconButtons.Remove(bttn);
+                    if (Path.GetDirectoryName(item).Equals(AppPaths.ShortcutsDir, StringComparison.OrdinalIgnoreCase))
+                    {
+                        try
+                        {
+                            File.Delete(item);
+                        }
+                        catch (Exception ex)
+                        {
+                            LoggingConfig.Log($"No se pudo borrar {item}", ex: ex);
+                        }
+                    }
                     IconExtractor.RemoveFromCache(item);
                     CleanupButton(bttn);
                     updateJson();
@@ -619,10 +642,11 @@ namespace Iconrrousel.Main
             LoggingConfig.Log($"Updating paths with {filesDropped?.Length ?? 0} items");
 
             bool added = false;
-            foreach (var path in filesDropped)
+            foreach (var dropped in filesDropped)
             {
                 try
                 {
+                    var path = AdoptShortcut(dropped);
                     if (_paths.Contains(path))
                         continue;
                     var b = (Button)getButton(path);
@@ -633,7 +657,7 @@ namespace Iconrrousel.Main
                 }
                 catch (Exception ex)
                 {
-                    LoggingConfig.Log($"Failed updating path for {path}", ex: ex);
+                    LoggingConfig.Log($"Failed updating path for {dropped}", ex: ex);
                 }
             }
 
@@ -705,6 +729,28 @@ namespace Iconrrousel.Main
             {
                 LoggingConfig.Log("Error deleting all icons", ex: ex);
             }
+        }
+
+        private static string AdoptShortcut(string source)
+        {
+            var ext = Path.GetExtension(source);
+            if (!_shortcutExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase))
+                return source;
+            if (Path.GetDirectoryName(Path.GetFullPath(source)).Equals(AppPaths.ShortcutsDir, StringComparison.OrdinalIgnoreCase))
+                return source;
+            var dest = Path.Combine(AppPaths.ShortcutsDir, Path.GetFileName(source));
+            File.Copy(source, dest, overwrite: true);
+
+            try
+            {
+                File.Delete(source);
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException)
+            {
+                LoggingConfig.Log($"No se pudo borrar el acceso directo original: {source}", ex: ex);
+            }
+
+            return dest;
         }
     }
 }

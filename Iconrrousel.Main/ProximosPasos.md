@@ -1,17 +1,10 @@
-﻿# 1) Actualizar runtime: Net framework 4.8 a NET CORE
+﻿## 3) Pantalla de configuracion:
 
-# 2) Correcciones
-
--- Se detecto un bug cuando se usa en una pantalla que no tiene la misma resolucion: No se centra bien en la pantalla y queda desplazado.
-**** DEBERIA ESTAR SOLUCIONADO.
-
-# 3) Pantalla de configuracion:
-
--- La pantalla de configuracion tiene que tener un path (detectado o no) hacia las carpetas donde estan los juegos (no de los juegos) y clasificar el juego por su plataforma. Es decir, detectar la ruta generica de steam "..\common" donde estan todos los juegos, buscar los .exe y clasificarlos como "steam", luego hacer lo mismo para las otras plataformas.
+1) La pantalla de configuracion tiene que tener un path (detectado o no) hacia las carpetas donde estan los juegos (no de los juegos) y clasificar el juego por su plataforma. Es decir, detectar la ruta generica de steam "..\common" donde estan todos los juegos, buscar los .exe y clasificarlos como "steam", luego hacer lo mismo para las otras plataformas.
 -- Cambiar la orientacion de horitonzal a vertical. La expansion actua acorde a la orientacion.
 -- En la configuracion se puede decidir si se ancla arriba o abajo (OH) o derecha/izquierda (OV).
 
-# Menu contextual del icono (Boton derecho)
+## Menu contextual del icono (Boton derecho)
 
 -- Hay juegos que su exe no tiene el mismo nombre, se debe poder cambiar el nombre que se muestra haciendo click derecho sobre el icono/ cambiar nombre.
 -- Se podran crear mensajes que seran mostrados antes de iniciar el juego a modo recordatorio. Esta ventana debe tener un checkbox para determinar si se sigue mostrando o se oculta.
@@ -20,7 +13,7 @@ El mensaje sera un modal que puede tener tamano variable
 Se debe poder elegir una frecuencia de cada cuanto mostrar el mensaje: Cada vez que se inicia el juego, cada X dias
 -- Boton derecho sobre los iconos, se agrega: - Cambiar path del exe - Cambiar nombre - Cambiar plataforma. - Agregar mensaje - Abrir ubicacion del exe
 
-# Nuevas caracteristicas
+## Nuevas caracteristicas
 
 -- A partir de la deteccion de plataforma, se debe obtener el exe desde esa carpeta evitando que se use las del escritorio, de esta forma si se elimina el icono del escritorio, el exe sigue funcionando.
 -- El fondo del icono, cuando se pasa el mouse por encima, debe pintarse del color de la plataforma (color semi transparente):
@@ -30,3 +23,14 @@ Xbox: Verde
 Gog: Violeta
 EA: Naranja
 -- Boton de filtros: - Filtrar por plataforma - Mostrar ultimos 5 jugados
+
+# SOLUCIONADO
+## 1) Actualizar runtime: Net framework 4.8 a NET CORE
+
+## 2) Correcciones
+-- Se detecto un bug cuando se usa en una pantalla que no tiene la misma resolucion: No se centra bien en la pantalla y queda desplazado.
+	**** DEBERIA ESTAR SOLUCIONADO.
+
+
+Quiero que la pantalla de configuracion tenga una lista con carpetas donde se suelen instalar los diferentes juegos de los launcher. Necesito que vos modifiques la UI para agregar una lista en donde se pone el path de una carpeta y dentro de esa carpeta directamente o de forma recursiva, estara el .exe el video juego. Yo necesito que modifiques la UI para permitir esto pero la funcionalidad en el codigo la realizo yo en el codigo pero necesito que me des un paso a paso de lo que necesito hacer y donde modificarlo.
+La funcionalidad entonces seria: Se agrega una carpeta a esa lista, se guarda la configuracion y se detecta automaticamente todos los .exe de forma recursiva. Por ejemplo: se ingresa la carpeta 
